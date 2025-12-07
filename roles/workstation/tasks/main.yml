@@ -1,3 +1,26 @@
+# --- NEOVIM SETUP ---
+- name: Install Neovim
+  ansible.builtin.apt:
+    name: neovim
+    state: present
+
+- name: Ensure .config directory exists
+  ansible.builtin.file:
+    path: "/home/{{ target_user }}/.config"
+    state: directory
+    owner: "{{ target_user }}"
+    group: "{{ target_user }}"
+    mode: '0755'
+
+- name: Clone Neovim Configuration
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.git:
+    repo: 'git@github.com:compilercomplied/nvim.git'
+    dest: "/home/{{ target_user }}/.config/nvim"
+    version: master
+    accept_hostkey: yes
+    force: yes
 # --- SHELL CONFIG (Nushell & Starship) ---
 - name: Install Starship Prompt
   ansible.builtin.shell: curl -sS https://starship.rs/install.sh | sh -s -- -y
