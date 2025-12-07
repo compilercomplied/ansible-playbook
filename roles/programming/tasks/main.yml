@@ -1,0 +1,41 @@
+---
+# --- GOLANG SETUP ---
+- name: Download Go tarball
+  ansible.builtin.get_url:
+    url: "https://go.dev/dl/go{{ programming_languages.go }}.linux-amd64.tar.gz"
+    dest: "/tmp/go.tar.gz"
+
+- name: Remove old Go installation
+  ansible.builtin.file:
+    path: /usr/local/go
+    state: absent
+
+- name: Extract Go
+  ansible.builtin.unarchive:
+    src: "/tmp/go.tar.gz"
+    dest: /usr/local
+    remote_src: yes
+
+- name: Add Go to system path
+  ansible.builtin.copy:
+    dest: /etc/profile.d/go.sh
+    content: 'export PATH=$PATH:/usr/local/go/bin'
+
+# --- RUST SETUP ---
+- name: Check if Rust is installed
+  ansible.builtin.stat:
+    path: "/home/{{ target_user }}/.cargo/bin/rustup"
+  register: rustup_check
+
+- name: Download Rustup installer
+  ansible.builtin.get_url:
+    url: https://sh.rustup.rs
+    dest: /tmp/sh.rustup.rs
+    mode: '0755'
+  when: not rustup_check.stat.exists
+
+- name: Install Rust (User space)
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.shell: /tmp/sh.rustup.rs -y
+  when: not rustup_check.stat.exists

@@ -1,0 +1,44 @@
+# --- SHELL CONFIG (Nushell & Starship) ---
+- name: Install Starship Prompt
+  ansible.builtin.shell: curl -sS https://starship.rs/install.sh | sh -s -- -y
+  args:
+    creates: /usr/local/bin/starship
+
+- name: Compile and Install Nushell with Dataframes (Takes time!)
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.command:
+    cmd: "/home/{{ target_user }}/.cargo/bin/cargo install nu --features=dataframe --locked"
+  # We use 'creates' to prevent re-compiling every time, which takes ages
+  args:
+    creates: "/home/{{ target_user }}/.cargo/bin/nu"
+
+- name: Ensure .config directory exists
+  ansible.builtin.file:
+    path: "/home/{{ target_user }}/.config"
+    state: directory
+    owner: "{{ target_user }}"
+    group: "{{ target_user }}"
+    mode: '0755'
+
+- name: Clone Nushell Configuration
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.git:
+    repo: 'git@github.com:compilercomplied/nushell.git'
+    dest: "/home/{{ target_user }}/.config/nushell"
+    version: main
+    accept_hostkey: yes
+    force: yes
+
+- name: Run Nushell Bootstrap
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.command:
+    cmd: "/home/{{ target_user }}/.cargo/bin/nu bootstrap.nu"
+    chdir: "/home/{{ target_user }}/.config/nushell"
+
+- name: Change user shell to Nushell
+  ansible.builtin.user:
+    name: "{{ target_user }}"
+    shell: "/home/{{ target_user }}/.cargo/bin/nu"

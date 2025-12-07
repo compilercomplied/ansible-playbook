@@ -1,0 +1,20 @@
+---
+- name: Provision All Systems
+  hosts: all
+  become: true
+  roles:
+    - common
+    - users
+
+- name: Provision Servers
+  hosts: servers
+  become: true
+  roles:
+    - docker
+
+- name: Provision Laptop/Workstation
+  hosts: workstations
+  become: true
+  roles:
+    - programming
+    - workstation

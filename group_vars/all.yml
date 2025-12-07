@@ -1,0 +1,20 @@
+---
+target_user: gdario
+
+# Debian Source Config
+debian_mirror: "deb.debian.org"
+debian_release: "testing"
+
+# Package Categories
+core_packages:
+  - ripgrep
+  - git
+  - curl
+  - ssh
+  - vim
+  - build-essential
+  - unzip
+
+programming_languages:
+  go: "1.22.1"
+  rust: stable
