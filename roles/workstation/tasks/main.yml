@@ -1,4 +1,8 @@
 ---
+- name: Install Core Packages
+  ansible.builtin.apt:
+    name: "{{ user_packages }}"
+    state: present
 # --- NEOVIM SETUP ---
 - name: Install Neovim
   ansible.builtin.apt:

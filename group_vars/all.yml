@@ -18,3 +18,8 @@ core_packages:
 programming_languages:
   go: "1.22.1"
   rust: stable
+
+user_packages:
+  - bat
+  - tree
+  - sqlite3
