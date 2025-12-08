@@ -92,7 +92,7 @@
     path: "/home/{{ target_user }}/.bashrc"
     marker: "# {mark} ANSIBLE MANAGED BLOCK (FNM)"
     block: |
-      export PATH="/home/{{ target_user }}/.fnm:$PATH"
+      export PATH="/home/{{ target_user }}/.fnm:$HOME/.local/bin:$PATH"
       eval "`fnm env`"
     owner: "{{ target_user }}"
 
@@ -101,7 +101,7 @@
     path: "/home/{{ target_user }}/.profile"
     marker: "# {mark} ANSIBLE MANAGED BLOCK (FNM)"
     block: |
-      export PATH="/home/{{ target_user }}/.fnm:$PATH"
+      export PATH="/home/{{ target_user }}/.fnm:$HOME/.local/bin:$PATH"
       eval "`fnm env`"
     owner: "{{ target_user }}"
 
@@ -116,6 +116,16 @@
   args:
     executable: /bin/bash
   # This runs every time to ensure latest is actually installed
+
+- name: Install Global AI Tools (Claude Code)
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      export PATH="$HOME/.local/bin:$PATH"
+      curl -fsSL https://claude.ai/install.sh | bash
+    executable: /bin/bash
 
 # --- NUSHELL CONFIGURATION ---
 - name: Ensure Nushell config directory exists
@@ -132,6 +142,7 @@
     create: yes
     block: |
       $env.PATH = ($env.PATH | prepend '/usr/local/go/bin')
+      $env.PATH = ($env.PATH | prepend ($env.HOME + '/.local/bin'))
       $env.PATH = ($env.PATH | prepend ($env.HOME + '/.cargo/bin'))
       $env.PATH = ($env.PATH | prepend ($env.HOME + '/.fnm'))
       # Initialize fnm for nushell
