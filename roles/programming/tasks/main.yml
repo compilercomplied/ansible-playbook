@@ -118,20 +118,22 @@
   # This runs every time to ensure latest is actually installed
 
 # --- NUSHELL CONFIGURATION ---
-- name: Check for Nushell env.nu
-  ansible.builtin.stat:
-    path: "/home/{{ target_user }}/.config/nushell/env.nu"
-  register: nu_env_check
+- name: Ensure Nushell config directory exists
+  ansible.builtin.file:
+    path: "/home/{{ target_user }}/.config/nushell"
+    state: directory
+    owner: "{{ target_user }}"
+    mode: '0755'
 
 - name: Add Programming Envs to Nushell
   ansible.builtin.blockinfile:
     path: "/home/{{ target_user }}/.config/nushell/env.nu"
     marker: "# {mark} ANSIBLE MANAGED BLOCK (PROGRAMMING)"
+    create: yes
     block: |
-      $env.PATH = ($env.PATH | split row (char esep) | prepend '/usr/local/go/bin')
-      $env.PATH = ($env.PATH | split row (char esep) | prepend ($env.HOME + '/.cargo/bin'))
-      $env.PATH = ($env.PATH | split row (char esep) | prepend ($env.HOME + '/.fnm'))
+      $env.PATH = ($env.PATH | prepend '/usr/local/go/bin')
+      $env.PATH = ($env.PATH | prepend ($env.HOME + '/.cargo/bin'))
+      $env.PATH = ($env.PATH | prepend ($env.HOME + '/.fnm'))
       # Initialize fnm for nushell
       fnm env --json | from json | load-env
     owner: "{{ target_user }}"
-  when: nu_env_check.stat.exists
