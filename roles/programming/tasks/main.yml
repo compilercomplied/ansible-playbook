@@ -1,8 +1,12 @@
 ---
 # --- GOLANG SETUP ---
+- name: Determine Go Architecture
+  ansible.builtin.set_fact:
+    go_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}"
+
 - name: Download Go tarball
   ansible.builtin.get_url:
-    url: "https://go.dev/dl/go{{ programming_languages.go }}.linux-amd64.tar.gz"
+    url: "https://go.dev/dl/go{{ programming_languages.go }}.linux-{{ go_arch }}.tar.gz"
     dest: "/tmp/go.tar.gz"
 
 - name: Remove old Go installation
@@ -16,10 +20,25 @@
     dest: /usr/local
     remote_src: yes
 
-- name: Add Go to system path
+- name: Add Go to system path (profile.d)
   ansible.builtin.copy:
     dest: /etc/profile.d/go.sh
     content: 'export PATH=$PATH:/usr/local/go/bin'
+    mode: '0644'
+
+- name: Add Go to user .bashrc
+  ansible.builtin.lineinfile:
+    path: "/home/{{ target_user }}/.bashrc"
+    line: 'export PATH=$PATH:/usr/local/go/bin'
+    create: yes
+    owner: "{{ target_user }}"
+
+- name: Add Go to user .profile
+  ansible.builtin.lineinfile:
+    path: "/home/{{ target_user }}/.profile"
+    line: 'export PATH=$PATH:/usr/local/go/bin'
+    create: yes
+    owner: "{{ target_user }}"
 
 # --- RUST SETUP ---
 - name: Check if Rust is installed
@@ -39,3 +58,80 @@
   become_user: "{{ target_user }}"
   ansible.builtin.shell: /tmp/sh.rustup.rs -y
   when: not rustup_check.stat.exists
+
+- name: Source Cargo in .bashrc
+  ansible.builtin.lineinfile:
+    path: "/home/{{ target_user }}/.bashrc"
+    line: '. "$HOME/.cargo/env"'
+    create: yes
+    owner: "{{ target_user }}"
+
+- name: Source Cargo in .profile
+  ansible.builtin.lineinfile:
+    path: "/home/{{ target_user }}/.profile"
+    line: '. "$HOME/.cargo/env"'
+    create: yes
+    owner: "{{ target_user }}"
+
+# --- NODEJS / FNM SETUP ---
+- name: Download fnm installer
+  ansible.builtin.get_url:
+    url: https://fnm.vercel.app/install
+    dest: /tmp/install_fnm.sh
+    mode: '0755'
+
+- name: Install fnm
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.shell: /tmp/install_fnm.sh --install-dir "/home/{{ target_user }}/.fnm" --skip-shell
+  args:
+    creates: "/home/{{ target_user }}/.fnm/fnm"
+
+- name: Configure fnm in .bashrc
+  ansible.builtin.blockinfile:
+    path: "/home/{{ target_user }}/.bashrc"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK (FNM)"
+    block: |
+      export PATH="/home/{{ target_user }}/.fnm:$PATH"
+      eval "`fnm env`"
+    owner: "{{ target_user }}"
+
+- name: Configure fnm in .profile
+  ansible.builtin.blockinfile:
+    path: "/home/{{ target_user }}/.profile"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK (FNM)"
+    block: |
+      export PATH="/home/{{ target_user }}/.fnm:$PATH"
+      eval "`fnm env`"
+    owner: "{{ target_user }}"
+
+- name: Install Latest Node via fnm
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.shell: |
+    export PATH="/home/{{ target_user }}/.fnm:$PATH"
+    eval "`fnm env`"
+    fnm install --latest
+    fnm default latest
+  args:
+    executable: /bin/bash
+  # This runs every time to ensure latest is actually installed
+
+# --- NUSHELL CONFIGURATION ---
+- name: Check for Nushell env.nu
+  ansible.builtin.stat:
+    path: "/home/{{ target_user }}/.config/nushell/env.nu"
+  register: nu_env_check
+
+- name: Add Programming Envs to Nushell
+  ansible.builtin.blockinfile:
+    path: "/home/{{ target_user }}/.config/nushell/env.nu"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK (PROGRAMMING)"
+    block: |
+      $env.PATH = ($env.PATH | split row (char esep) | prepend '/usr/local/go/bin')
+      $env.PATH = ($env.PATH | split row (char esep) | prepend ($env.HOME + '/.cargo/bin'))
+      $env.PATH = ($env.PATH | split row (char esep) | prepend ($env.HOME + '/.fnm'))
+      # Initialize fnm for nushell
+      fnm env --json | from json | load-env
+    owner: "{{ target_user }}"
+  when: nu_env_check.stat.exists
