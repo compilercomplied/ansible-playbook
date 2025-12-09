@@ -29,16 +29,23 @@
 - name: Add Go to user .bashrc
   ansible.builtin.lineinfile:
     path: "/home/{{ target_user }}/.bashrc"
-    line: 'export PATH=$PATH:/usr/local/go/bin'
+    regexp: 'export PATH=\$PATH:/usr/local/go/bin'
+    line: 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin'
     create: yes
     owner: "{{ target_user }}"
 
 - name: Add Go to user .profile
   ansible.builtin.lineinfile:
     path: "/home/{{ target_user }}/.profile"
-    line: 'export PATH=$PATH:/usr/local/go/bin'
+    regexp: 'export PATH=\$PATH:/usr/local/go/bin'
+    line: 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin'
     create: yes
     owner: "{{ target_user }}"
+
+- name: Install gopls
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.command: /usr/local/go/bin/go install golang.org/x/tools/gopls@latest
 
 # --- RUST SETUP ---
 - name: Check if Rust is installed
@@ -162,6 +169,7 @@
     create: yes
     block: |
       $env.PATH = ($env.PATH | prepend '/usr/local/go/bin')
+      $env.PATH = ($env.PATH | prepend ($env.HOME + '/go/bin'))
       $env.PATH = ($env.PATH | prepend ($env.HOME + '/.local/bin'))
       $env.PATH = ($env.PATH | prepend ($env.HOME + '/.cargo/bin'))
       $env.PATH = ($env.PATH | prepend ($env.HOME + '/.fnm'))

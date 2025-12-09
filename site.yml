@@ -3,6 +3,7 @@
   hosts: localhost
   connection: local
   become: true
+  tags: always
   vars:
     secrets_repo: "git@github.com:compilercomplied/hosts-secrets.git"
     temp_secrets_path: "/tmp/hosts-secrets-bootstrap"
@@ -81,5 +82,5 @@
   hosts: workstations
   become: true
   roles:
-    - programming
-    - workstation
+    - { role: programming, tags: ['programming', 'workstation'] }
+    - { role: workstation, tags: ['workstation'] }
