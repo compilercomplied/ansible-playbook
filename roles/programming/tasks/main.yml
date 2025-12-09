@@ -127,6 +127,26 @@
       curl -fsSL https://claude.ai/install.sh | bash
     executable: /bin/bash
 
+- name: Install Gemini CLI
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.shell:
+    cmd: |
+      export PATH="/home/{{ target_user }}/.fnm:$PATH"
+      eval "`fnm env`"
+      npm install -g @google/gemini-cli
+    executable: /bin/bash
+
+- name: Install GitHub Copilot CLI
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.shell:
+    cmd: |
+      export PATH="/home/{{ target_user }}/.fnm:$PATH"
+      eval "`fnm env`"
+      npm install -g @github/copilot
+    executable: /bin/bash
+
 # --- NUSHELL CONFIGURATION ---
 - name: Ensure Nushell config directory exists
   ansible.builtin.file:
