@@ -4,21 +4,30 @@
   ansible.builtin.set_fact:
     go_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}"
 
+- name: Check installed Go version
+  ansible.builtin.shell: /usr/local/go/bin/go version | grep -q "go{{ programming_languages.go }}"
+  register: go_version_check
+  failed_when: false
+  changed_when: false
+
 - name: Download Go tarball
   ansible.builtin.get_url:
     url: "https://go.dev/dl/go{{ programming_languages.go }}.linux-{{ go_arch }}.tar.gz"
     dest: "/tmp/go.tar.gz"
+  when: go_version_check.rc != 0
 
 - name: Remove old Go installation
   ansible.builtin.file:
     path: /usr/local/go
     state: absent
+  when: go_version_check.rc != 0
 
 - name: Extract Go
   ansible.builtin.unarchive:
     src: "/tmp/go.tar.gz"
     dest: /usr/local
     remote_src: yes
+  when: go_version_check.rc != 0
 
 - name: Add Go to system path (profile.d)
   ansible.builtin.copy:
@@ -42,10 +51,16 @@
     create: yes
     owner: "{{ target_user }}"
 
+- name: Check if gopls is installed
+  ansible.builtin.stat:
+    path: "/home/{{ target_user }}/go/bin/gopls"
+  register: gopls_check
+
 - name: Install gopls
   become: yes
   become_user: "{{ target_user }}"
   ansible.builtin.command: /usr/local/go/bin/go install golang.org/x/tools/gopls@latest
+  when: not gopls_check.stat.exists
 
 # --- RUST SETUP ---
 - name: Check if Rust is installed
@@ -81,18 +96,23 @@
     owner: "{{ target_user }}"
 
 # --- NODEJS / FNM SETUP ---
+- name: Check if fnm is installed
+  ansible.builtin.stat:
+    path: "/home/{{ target_user }}/.fnm/fnm"
+  register: fnm_check
+
 - name: Download fnm installer
   ansible.builtin.get_url:
     url: https://fnm.vercel.app/install
     dest: /tmp/install_fnm.sh
     mode: '0755'
+  when: not fnm_check.stat.exists
 
 - name: Install fnm
   become: yes
   become_user: "{{ target_user }}"
   ansible.builtin.shell: /tmp/install_fnm.sh --install-dir "/home/{{ target_user }}/.fnm" --skip-shell
-  args:
-    creates: "/home/{{ target_user }}/.fnm/fnm"
+  when: not fnm_check.stat.exists
 
 - name: Configure fnm in .bashrc
   ansible.builtin.blockinfile:
@@ -112,6 +132,17 @@
       eval "`fnm env`"
     owner: "{{ target_user }}"
 
+- name: Check if Node is installed
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.shell: |
+    export PATH="/home/{{ target_user }}/.fnm:$PATH"
+    eval "`fnm env`"
+    node --version
+  register: node_check
+  failed_when: false
+  changed_when: false
+
 - name: Install Latest Node via fnm
   become: yes
   become_user: "{{ target_user }}"
@@ -122,7 +153,12 @@
     fnm default latest
   args:
     executable: /bin/bash
-  # This runs every time to ensure latest is actually installed
+  when: node_check.rc != 0
+
+- name: Check if Claude Code is installed
+  ansible.builtin.stat:
+    path: "/home/{{ target_user }}/.local/bin/claude"
+  register: claude_check
 
 - name: Install Global AI Tools (Claude Code)
   become: yes
@@ -133,6 +169,18 @@
       export PATH="$HOME/.local/bin:$PATH"
       curl -fsSL https://claude.ai/install.sh | bash
     executable: /bin/bash
+  when: not claude_check.stat.exists
+
+- name: Check if Gemini CLI is installed
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.shell: |
+    export PATH="/home/{{ target_user }}/.fnm:$PATH"
+    eval "`fnm env`"
+    npm list -g @google/gemini-cli
+  register: gemini_check
+  failed_when: false
+  changed_when: false
 
 - name: Install Gemini CLI
   become: yes
@@ -143,6 +191,18 @@
       eval "`fnm env`"
       npm install -g @google/gemini-cli
     executable: /bin/bash
+  when: gemini_check.rc != 0
+
+- name: Check if Github Copilot is installed
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.shell: |
+    export PATH="/home/{{ target_user }}/.fnm:$PATH"
+    eval "`fnm env`"
+    npm list -g @github/copilot
+  register: copilot_check
+  failed_when: false
+  changed_when: false
 
 - name: Install GitHub Copilot CLI
   become: yes
@@ -153,6 +213,7 @@
       eval "`fnm env`"
       npm install -g @github/copilot
     executable: /bin/bash
+  when: copilot_check.rc != 0
 
 # --- NUSHELL CONFIGURATION ---
 - name: Ensure Nushell config directory exists

@@ -12,34 +12,6 @@
     dest: /etc/apt/keyrings/docker.asc
     mode: '0644'
 
-- name: Find all Docker repository files
-  ansible.builtin.find:
-    paths: /etc/apt/sources.list.d/
-    patterns: '*docker*'
-  register: docker_repo_files
-
-- name: Remove all Docker repository files
-  ansible.builtin.file:
-    path: "{{ item.path }}"
-    state: absent
-  loop: "{{ docker_repo_files.files }}"
-  when: docker_repo_files.files | length > 0
-
-- name: Clean apt cache
-  ansible.builtin.command: apt-get clean
-  changed_when: false
-
-- name: Remove apt lists
-  ansible.builtin.file:
-    path: /var/lib/apt/lists
-    state: absent
-
-- name: Recreate apt lists directory
-  ansible.builtin.file:
-    path: /var/lib/apt/lists/partial
-    state: directory
-    mode: '0755'
-
 - name: Set architecture variable
   ansible.builtin.set_fact:
     docker_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' if ansible_architecture == 'aarch64' else ansible_architecture }}"
