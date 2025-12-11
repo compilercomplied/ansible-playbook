@@ -1,0 +1,9 @@
+---
+- name: Provision Workstations
+  hosts: workstations
+  become: true
+  roles:
+    - common
+    - users
+    - { role: programming, tags: ['programming', 'workstation'] }
+    - { role: workstation, tags: ['workstation'] }
