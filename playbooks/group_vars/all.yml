@@ -20,6 +20,8 @@ programming_languages:
   rust: stable
 
 user_packages:
+  - kubectx
+  - kubectl
   - bat
   - tree
   - sqlite3
