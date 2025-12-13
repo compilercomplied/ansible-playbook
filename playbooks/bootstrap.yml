@@ -5,8 +5,8 @@
   become: true
   tags: always
   vars:
-    secrets_repo: "git@github.com:compilercomplied/hosts-secrets.git"
-    temp_secrets_path: "/tmp/hosts-secrets-bootstrap"
+    secrets_repo: "git@github.com:compilercomplied/secrets.git"
+    temp_secrets_path: "/tmp/ansible-secrets-bootstrap"
 
   tasks:
     - name: Clone Secrets Repo to temp location

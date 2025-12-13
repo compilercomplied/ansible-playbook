@@ -3,6 +3,7 @@
   ansible.builtin.apt:
     name: "{{ user_packages }}"
     state: present
+
 # --- NEOVIM SETUP ---
 - name: Install Neovim
   ansible.builtin.apt:
@@ -56,8 +57,8 @@
   become: yes
   become_user: "{{ target_user }}"
   ansible.builtin.git:
-    repo: 'git@github.com:compilercomplied/hosts-secrets.git'
-    dest: "/home/{{ target_user }}/.local/share/hosts-secrets"
+    repo: 'git@github.com:compilercomplied/secrets.git'
+    dest: "/home/{{ target_user }}/.local/share/ansible-secrets"
     version: master
     accept_hostkey: yes
     force: yes
@@ -85,7 +86,7 @@
          # Write in Nushell syntax
          echo "  \$env.$key = \"$safe_val\"" >> /home/{{ target_user }}/.config/nushell/lib/secrets.nu
       fi
-    done < /home/{{ target_user }}/.local/share/hosts-secrets/secrets/workstation.env
+    done < /home/{{ target_user }}/.local/share/ansible-secrets/secrets/workstation.env
     
     # Close the block
     echo "}" >> /home/{{ target_user }}/.config/nushell/lib/secrets.nu
@@ -96,7 +97,7 @@
   become: yes
   become_user: "{{ target_user }}"
   ansible.builtin.file:
-    path: "/home/{{ target_user }}/.local/share/hosts-secrets"
+    path: "/home/{{ target_user }}/.local/share/ansible-secrets"
     state: absent
 
 # --- BOOTSTRAP ---
