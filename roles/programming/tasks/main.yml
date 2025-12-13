@@ -215,6 +215,46 @@
     executable: /bin/bash
   when: copilot_check.rc != 0
 
+# --- PULUMI SETUP ---
+- name: Check if Pulumi is installed
+  ansible.builtin.stat:
+    path: "/home/{{ target_user }}/.pulumi/bin/pulumi"
+  register: pulumi_check
+  become: yes
+  become_user: "{{ target_user }}"
+
+- name: Download Pulumi installer script
+  ansible.builtin.get_url:
+    url: https://get.pulumi.com/
+    dest: /tmp/install_pulumi.sh
+    mode: '0755'
+  when: not pulumi_check.stat.exists
+
+- name: Install Pulumi
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.shell: |
+    /tmp/install_pulumi.sh
+  args:
+    creates: "/home/{{ target_user }}/.pulumi/bin/pulumi"
+  when: not pulumi_check.stat.exists
+
+- name: Add Pulumi to user .bashrc
+  ansible.builtin.lineinfile:
+    path: "/home/{{ target_user }}/.bashrc"
+    regexp: 'export PATH=\$PATH:\$HOME/\.pulumi/bin'
+    line: 'export PATH=$PATH:$HOME/.pulumi/bin'
+    create: yes
+    owner: "{{ target_user }}"
+
+- name: Add Pulumi to user .profile
+  ansible.builtin.lineinfile:
+    path: "/home/{{ target_user }}/.profile"
+    regexp: 'export PATH=\$PATH:\$HOME/\.pulumi/bin'
+    line: 'export PATH=$PATH:$HOME/.pulumi/bin'
+    create: yes
+    owner: "{{ target_user }}"
+
 # --- NUSHELL CONFIGURATION ---
 - name: Ensure Nushell config directory exists
   ansible.builtin.file:
@@ -233,6 +273,7 @@
       $env.PATH = ($env.PATH | prepend ($env.HOME + '/go/bin'))
       $env.PATH = ($env.PATH | prepend ($env.HOME + '/.local/bin'))
       $env.PATH = ($env.PATH | prepend ($env.HOME + '/.cargo/bin'))
+      $env.PATH = ($env.PATH | prepend ($env.HOME + '/.pulumi/bin'))
       $env.PATH = ($env.PATH | prepend ($env.HOME + '/.fnm'))
       # Initialize fnm for nushell
       fnm env --json | from json | load-env
