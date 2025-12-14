@@ -21,6 +21,7 @@ programming_languages:
 
 user_packages:
   - kubectx
+  - make
   - kubectl
   - bat
   - tree
