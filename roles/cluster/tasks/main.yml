@@ -11,6 +11,7 @@
     content: |
       tls-san:
         - cluster-cloud.personal.systems
+        - cluster.gdario.dev
     mode: '0644'
   notify: Restart k3s
 
