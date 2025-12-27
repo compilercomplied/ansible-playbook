@@ -28,3 +28,4 @@ user_packages:
   - make
   - sqlite3
   - tree
+  - tree-sitter-cli
