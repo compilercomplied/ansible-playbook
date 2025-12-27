@@ -21,6 +21,7 @@ programming_languages:
 
 user_packages:
   - bat
+  - glow
   - jq
   - kubectl
   - kubectx
