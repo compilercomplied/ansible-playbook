@@ -63,9 +63,9 @@
     accept_hostkey: yes
     force: yes
 
-- name: Ensure Nushell lib directory exists
+- name: Ensure Nushell env directory exists
   ansible.builtin.file:
-    path: "/home/{{ target_user }}/.config/nushell/lib"
+    path: "/home/{{ target_user }}/.config/nushell/env"
     state: directory
     owner: "{{ target_user }}"
     mode: '0755'
@@ -75,7 +75,7 @@
   become_user: "{{ target_user }}"
   ansible.builtin.shell: |
     # Start the Nushell export-env block
-    echo "export-env {" > /home/{{ target_user }}/.config/nushell/lib/secrets.nu
+    echo "export-env {" > /home/{{ target_user }}/.config/nushell/env/secrets.nu
     
     # Read the env file line by line
     while IFS='=' read -r key value; do
@@ -84,12 +84,12 @@
          # Escape double quotes in value just in case
          safe_val=$(echo "$value" | sed 's/"/\\"/g')
          # Write in Nushell syntax
-         echo "  \$env.$key = \"$safe_val\"" >> /home/{{ target_user }}/.config/nushell/lib/secrets.nu
+         echo "  \$env.$key = \"$safe_val\"" >> /home/{{ target_user }}/.config/nushell/env/secrets.nu
       fi
     done < /home/{{ target_user }}/.local/share/ansible-secrets/secrets/workstation.env
     
     # Close the block
-    echo "}" >> /home/{{ target_user }}/.config/nushell/lib/secrets.nu
+    echo "}" >> /home/{{ target_user }}/.config/nushell/env/secrets.nu
   args:
     executable: /bin/bash
 
