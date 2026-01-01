@@ -29,3 +29,4 @@ user_packages:
   - sqlite3
   - tree
   - tree-sitter-cli
+  - wl-clipboard
