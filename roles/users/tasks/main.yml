@@ -1,0 +1,8 @@
+---
+- name: Ensure target user exists
+  ansible.builtin.user:
+    name: "{{ target_user }}"
+    shell: /bin/bash
+    groups: sudo
+    append: yes
+    create_home: yes
