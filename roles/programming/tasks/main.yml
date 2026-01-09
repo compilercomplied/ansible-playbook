@@ -274,6 +274,33 @@
     creates: /usr/local/bin/helm
   when: not helm_check.stat.exists
 
+# --- MISE SETUP ---
+- name: Check if mise is installed
+  ansible.builtin.stat:
+    path: "/home/{{ target_user }}/.local/bin/mise"
+  register: mise_check
+
+- name: Install mise
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.shell: |
+    curl https://mise.run | sh
+  when: not mise_check.stat.exists
+
+- name: Add mise to user .bashrc
+  ansible.builtin.lineinfile:
+    path: "/home/{{ target_user }}/.bashrc"
+    line: 'eval "$(mise activate bash)"'
+    create: yes
+    owner: "{{ target_user }}"
+
+- name: Add mise to user .profile
+  ansible.builtin.lineinfile:
+    path: "/home/{{ target_user }}/.profile"
+    line: 'eval "$(mise activate bash)"'
+    create: yes
+    owner: "{{ target_user }}"
+
 # --- NUSHELL CONFIGURATION ---
 - name: Ensure Nushell config directory exists
   ansible.builtin.file:
