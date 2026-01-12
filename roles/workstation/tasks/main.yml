@@ -126,10 +126,3 @@
   args:
     creates: "/home/{{ target_user }}/.zoxide.nu"
 
-- name: Add zoxide to Nushell config
-  ansible.builtin.blockinfile:
-    path: "/home/{{ target_user }}/.config/nushell/config.nu"
-    marker: "# {mark} ANSIBLE MANAGED BLOCK (ZOXIDE)"
-    block: |
-      source ~/.zoxide.nu
-    owner: "{{ target_user }}"
