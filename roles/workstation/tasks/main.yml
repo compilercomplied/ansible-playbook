@@ -34,6 +34,12 @@
   args:
     creates: /usr/local/bin/starship
 
+- name: Install zoxide
+  become: yes
+  ansible.builtin.shell: curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh -s -- --bin-dir /usr/local/bin
+  args:
+    creates: /usr/local/bin/zoxide
+
 - name: Compile and Install Nushell with Dataframes (Takes time!)
   become: yes
   become_user: "{{ target_user }}"
@@ -112,3 +118,18 @@
   ansible.builtin.user:
     name: "{{ target_user }}"
     shell: "/home/{{ target_user }}/.cargo/bin/nu"
+
+- name: Generate zoxide script for Nushell
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.shell: /usr/local/bin/zoxide init nushell > /home/{{ target_user }}/.zoxide.nu
+  args:
+    creates: "/home/{{ target_user }}/.zoxide.nu"
+
+- name: Add zoxide to Nushell config
+  ansible.builtin.blockinfile:
+    path: "/home/{{ target_user }}/.config/nushell/config.nu"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK (ZOXIDE)"
+    block: |
+      source ~/.zoxide.nu
+    owner: "{{ target_user }}"
