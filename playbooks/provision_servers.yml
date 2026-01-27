@@ -2,6 +2,7 @@
 - name: Provision Servers
   hosts: servers
   become: true
+  tags: servers
   roles:
     - common
     - users

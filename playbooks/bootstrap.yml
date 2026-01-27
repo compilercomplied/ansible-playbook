@@ -1,9 +1,9 @@
 ---
-- name: Bootstrap - Generate Inventory and Hosts
+- name: Bootstrap - Generate Server Inventory and Hosts
   hosts: localhost
   connection: local
   become: true
-  tags: always
+  tags: servers
   vars:
     secrets_repo: "git@github.com:compilercomplied/secrets.git"
     temp_secrets_path: "/tmp/ansible-secrets-bootstrap"
@@ -40,14 +40,6 @@
         ansible_host: "{{ item.ip }}"
       loop: "{{ parsed_hosts }}"
 
-    - name: Add workstations group (ensure localhost is in it)
-      ansible.builtin.add_host:
-        name: localhost
-        groups: workstations
-        ansible_connection: local
-        ansible_python_interpreter: /usr/bin/python3
-      changed_when: false
-
     - name: Add all hosts to /etc/hosts
       ansible.builtin.lineinfile:
         path: /etc/hosts
@@ -60,3 +52,17 @@
       ansible.builtin.file:
         path: "{{ temp_secrets_path }}"
         state: absent
+
+- name: Bootstrap - Workstation inventory
+  hosts: localhost
+  connection: local
+  tags: always
+
+  tasks:
+    - name: Add workstations group (ensure localhost is in it)
+      ansible.builtin.add_host:
+        name: localhost
+        groups: workstations
+        ansible_connection: local
+        ansible_python_interpreter: /usr/bin/python3
+      changed_when: false
