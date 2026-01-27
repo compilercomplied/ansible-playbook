@@ -40,11 +40,11 @@
   args:
     creates: /usr/local/bin/zoxide
 
-- name: Compile and Install Nushell with Dataframes (Takes time!)
+- name: Compile and Install Nushell
   become: yes
   become_user: "{{ target_user }}"
   ansible.builtin.command:
-    cmd: "/home/{{ target_user }}/.cargo/bin/cargo install nu --features=dataframe --locked"
+    cmd: "/home/{{ target_user }}/.cargo/bin/cargo install nu --locked"
   args:
     creates: "/home/{{ target_user }}/.cargo/bin/nu"
 
