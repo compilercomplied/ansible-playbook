@@ -64,7 +64,7 @@
   become_user: "{{ target_user }}"
   ansible.builtin.git:
     repo: 'git@github.com:compilercomplied/secrets.git'
-    dest: "/home/{{ target_user }}/.local/share/ansible-secrets"
+    dest: "/home/{{ target_user }}/secrets"
     version: master
     accept_hostkey: yes
     force: yes
@@ -92,19 +92,12 @@
          # Write in Nushell syntax
          echo "  \$env.$key = \"$safe_val\"" >> /home/{{ target_user }}/.config/nushell/env/secrets.nu
       fi
-    done < /home/{{ target_user }}/.local/share/ansible-secrets/secrets/workstation.env
+    done < /home/{{ target_user }}/secrets/workstation.env
     
     # Close the block
     echo "}" >> /home/{{ target_user }}/.config/nushell/env/secrets.nu
   args:
     executable: /bin/bash
-
-- name: Remove Secrets Repo (Cleanup)
-  become: yes
-  become_user: "{{ target_user }}"
-  ansible.builtin.file:
-    path: "/home/{{ target_user }}/.local/share/ansible-secrets"
-    state: absent
 
 # --- BOOTSTRAP ---
 - name: Run Nushell Bootstrap

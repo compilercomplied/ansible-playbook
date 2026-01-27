@@ -6,21 +6,21 @@
   tags: servers
   vars:
     secrets_repo: "git@github.com:compilercomplied/secrets.git"
-    temp_secrets_path: "/tmp/ansible-secrets-bootstrap"
+    secrets_path: "/home/{{ target_user }}/secrets"
 
   tasks:
-    - name: Clone Secrets Repo to temp location
+    - name: Clone Secrets Repo
       become: no
       ansible.builtin.git:
         repo: "{{ secrets_repo }}"
-        dest: "{{ temp_secrets_path }}"
+        dest: "{{ secrets_path }}"
         version: master
         accept_hostkey: yes
         force: yes
 
     - name: Parse hosts map CSV with Python script
       ansible.builtin.command:
-        cmd: "{{ playbook_dir }}/scripts/parse_inventory.py {{ temp_secrets_path }}/hosts/map.csv"
+        cmd: "{{ playbook_dir }}/scripts/parse_inventory.py {{ secrets_path }}/hosts/map.csv"
       register: csv_parse_result
       changed_when: false
 
@@ -47,11 +47,6 @@
         regexp: "^{{ item.ip }}\\s+{{ item.fqdn | regex_escape }}"
         state: present
       loop: "{{ parsed_hosts }}"
-
-    - name: Remove temporary secrets repo
-      ansible.builtin.file:
-        path: "{{ temp_secrets_path }}"
-        state: absent
 
 - name: Bootstrap - Workstation inventory
   hosts: localhost
