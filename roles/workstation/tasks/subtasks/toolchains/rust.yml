@@ -1,0 +1,41 @@
+---
+- name: Check if Rust is installed
+  ansible.builtin.stat:
+    path: "/home/{{ target_user }}/.cargo/bin/rustup"
+  register: rustup_check
+
+- name: Download Rustup installer
+  ansible.builtin.get_url:
+    url: https://sh.rustup.rs
+    dest: /tmp/sh.rustup.rs
+    mode: '0755'
+  when: not rustup_check.stat.exists
+
+- name: Install Rust (User space)
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.shell: /tmp/sh.rustup.rs -y
+  when: not rustup_check.stat.exists
+
+- name: Source Cargo in .bashrc
+  ansible.builtin.lineinfile:
+    path: "/home/{{ target_user }}/.bashrc"
+    line: '. "$HOME/.cargo/env"'
+    create: yes
+    owner: "{{ target_user }}"
+
+- name: Source Cargo in .profile
+  ansible.builtin.lineinfile:
+    path: "/home/{{ target_user }}/.profile"
+    line: '. "$HOME/.cargo/env"'
+    create: yes
+    owner: "{{ target_user }}"
+
+- name: Configure Rust in Staged Nushell Env
+  ansible.builtin.blockinfile:
+    path: "/home/{{ target_user }}/.ansible_nushell_env.nu"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK (RUST)"
+    create: yes
+    block: |
+      $env.PATH = ($env.PATH | prepend ($env.HOME + '/.cargo/bin'))
+    owner: "{{ target_user }}"

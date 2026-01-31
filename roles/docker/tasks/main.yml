@@ -14,7 +14,7 @@
 
 - name: Set architecture variable
   ansible.builtin.set_fact:
-    docker_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' if ansible_architecture == 'aarch64' else ansible_architecture }}"
+    docker_arch: "{{ 'amd64' if ansible_facts['architecture'] == 'x86_64' else 'arm64' if ansible_facts['architecture'] == 'aarch64' else ansible_facts['architecture'] }}"
 
 - name: Add Docker Repository
   ansible.builtin.copy:
