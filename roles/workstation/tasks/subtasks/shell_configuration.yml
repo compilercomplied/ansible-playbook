@@ -14,7 +14,7 @@
   become_user: "{{ target_user }}"
   ansible.builtin.copy:
     src: "/home/{{ target_user }}/.ansible_nushell_env.nu"
-    dest: "/home/{{ target_user }}/.config/nushell/env.nu"
+    dest: "/home/{{ target_user }}/.config/nushell/.ansible_nushell_env.nu"
     remote_src: yes
     force: yes
 
