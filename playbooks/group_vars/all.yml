@@ -16,7 +16,6 @@ core_packages:
   - unzip
 
 programming_languages:
-  go: "1.22.1"
   rust: stable
 
 user_packages:
@@ -25,6 +24,7 @@ user_packages:
   - jq
   - kubectl
   - kubectx
+  - libatomic1 # Gemini cli dependency
   - make
   - sqlite3
   - tree

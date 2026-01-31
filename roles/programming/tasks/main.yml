@@ -1,67 +1,4 @@
 ---
-# --- GOLANG SETUP ---
-- name: Determine Go Architecture
-  ansible.builtin.set_fact:
-    go_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}"
-
-- name: Check installed Go version
-  ansible.builtin.shell: /usr/local/go/bin/go version | grep -q "go{{ programming_languages.go }}"
-  register: go_version_check
-  failed_when: false
-  changed_when: false
-
-- name: Download Go tarball
-  ansible.builtin.get_url:
-    url: "https://go.dev/dl/go{{ programming_languages.go }}.linux-{{ go_arch }}.tar.gz"
-    dest: "/tmp/go.tar.gz"
-  when: go_version_check.rc != 0
-
-- name: Remove old Go installation
-  ansible.builtin.file:
-    path: /usr/local/go
-    state: absent
-  when: go_version_check.rc != 0
-
-- name: Extract Go
-  ansible.builtin.unarchive:
-    src: "/tmp/go.tar.gz"
-    dest: /usr/local
-    remote_src: yes
-  when: go_version_check.rc != 0
-
-- name: Add Go to system path (profile.d)
-  ansible.builtin.copy:
-    dest: /etc/profile.d/go.sh
-    content: 'export PATH=$PATH:/usr/local/go/bin'
-    mode: '0644'
-
-- name: Add Go to user .bashrc
-  ansible.builtin.lineinfile:
-    path: "/home/{{ target_user }}/.bashrc"
-    regexp: 'export PATH=\$PATH:/usr/local/go/bin'
-    line: 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin'
-    create: yes
-    owner: "{{ target_user }}"
-
-- name: Add Go to user .profile
-  ansible.builtin.lineinfile:
-    path: "/home/{{ target_user }}/.profile"
-    regexp: 'export PATH=\$PATH:/usr/local/go/bin'
-    line: 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin'
-    create: yes
-    owner: "{{ target_user }}"
-
-- name: Check if gopls is installed
-  ansible.builtin.stat:
-    path: "/home/{{ target_user }}/go/bin/gopls"
-  register: gopls_check
-
-- name: Install gopls
-  become: yes
-  become_user: "{{ target_user }}"
-  ansible.builtin.command: /usr/local/go/bin/go install golang.org/x/tools/gopls@latest
-  when: not gopls_check.stat.exists
-
 # --- RUST SETUP ---
 - name: Check if Rust is installed
   ansible.builtin.stat:
@@ -302,12 +239,15 @@
     owner: "{{ target_user }}"
 
 # --- NUSHELL CONFIGURATION ---
-- name: Ensure Nushell config directory exists
-  ansible.builtin.file:
-    path: "/home/{{ target_user }}/.config/nushell"
-    state: directory
-    owner: "{{ target_user }}"
-    mode: '0755'
+- name: Clone Nushell Configuration
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.git:
+    repo: 'git@github.com:compilercomplied/nushell.git'
+    dest: "/home/{{ target_user }}/.config/nushell"
+    version: main
+    accept_hostkey: yes
+    force: yes
 
 - name: Add Programming Envs to Nushell
   ansible.builtin.blockinfile:

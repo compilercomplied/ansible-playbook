@@ -40,23 +40,13 @@
   args:
     creates: /usr/local/bin/zoxide
 
-- name: Compile and Install Nushell
+- name: Install nushell using `cargo install`
   become: yes
   become_user: "{{ target_user }}"
   ansible.builtin.command:
     cmd: "/home/{{ target_user }}/.cargo/bin/cargo install nu --locked"
   args:
     creates: "/home/{{ target_user }}/.cargo/bin/nu"
-
-- name: Clone Nushell Configuration
-  become: yes
-  become_user: "{{ target_user }}"
-  ansible.builtin.git:
-    repo: 'git@github.com:compilercomplied/nushell.git'
-    dest: "/home/{{ target_user }}/.config/nushell"
-    version: main
-    accept_hostkey: yes
-    force: yes
 
 # --- SECRETS MANAGEMENT ---
 - name: Clone Secrets Repo
@@ -68,13 +58,6 @@
     version: master
     accept_hostkey: yes
     force: yes
-
-- name: Ensure Nushell env directory exists
-  ansible.builtin.file:
-    path: "/home/{{ target_user }}/.config/nushell/env"
-    state: directory
-    owner: "{{ target_user }}"
-    mode: '0755'
 
 - name: Convert workstation.env to secrets.nu
   become: yes

@@ -3,8 +3,8 @@
   hosts: workstations
   become: true
   roles:
-    - common
-    - users
+    - { role: users, tags: ['workstation'] }
+    - { role: common, tags: ['workstation'] }
     - docker
     - { role: programming, tags: ['programming', 'workstation'] }
     - { role: workstation, tags: ['workstation'] }
