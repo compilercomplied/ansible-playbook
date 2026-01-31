@@ -24,3 +24,12 @@
     line: 'eval "$(mise activate bash)"'
     create: yes
     owner: "{{ target_user }}"
+
+- name: Configure mise in Staged Nushell Env
+  ansible.builtin.blockinfile:
+    path: "/home/{{ target_user }}/.ansible_nushell_env.nu"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK (MISE)"
+    create: yes
+    block: |
+      $env.PATH = ($env.PATH | prepend ($env.HOME + '/.local/bin'))
+    owner: "{{ target_user }}"
