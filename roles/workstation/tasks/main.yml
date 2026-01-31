@@ -1,104 +1,15 @@
 ---
-- name: Install Core Packages
-  ansible.builtin.apt:
-    name: "{{ user_packages }}"
-    state: present
+- name: Required presetup (packages, checks, secrets...)
+  ansible.builtin.include_tasks: subtasks/presetup.yml
 
-# --- NEOVIM SETUP ---
-- name: Install Neovim
-  ansible.builtin.apt:
-    name: neovim
-    state: present
+- name: Install Toolchains and Languages
+  ansible.builtin.include_tasks: subtasks/toolchains.yml
 
-- name: Ensure .config directory exists
-  ansible.builtin.file:
-    path: "/home/{{ target_user }}/.config"
-    state: directory
-    owner: "{{ target_user }}"
-    group: "{{ target_user }}"
-    mode: '0755'
+- name: Install nvim
+  ansible.builtin.include_tasks: subtasks/nvim.yml
 
-- name: Clone Neovim Configuration
-  become: yes
-  become_user: "{{ target_user }}"
-  ansible.builtin.git:
-    repo: 'git@github.com:compilercomplied/nvim.git'
-    dest: "/home/{{ target_user }}/.config/nvim"
-    version: master
-    accept_hostkey: yes
-    force: yes
+- name: Install AI Tools
+  ansible.builtin.include_tasks: subtasks/ai_tools.yml
 
-# --- SHELL CONFIG (Nushell & Starship) ---
-- name: Install Starship Prompt
-  ansible.builtin.shell: curl -sS https://starship.rs/install.sh | sh -s -- -y
-  args:
-    creates: /usr/local/bin/starship
-
-- name: Install zoxide
-  become: yes
-  ansible.builtin.shell: curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh -s -- --bin-dir /usr/local/bin
-  args:
-    creates: /usr/local/bin/zoxide
-
-- name: Install nushell using `cargo install`
-  become: yes
-  become_user: "{{ target_user }}"
-  ansible.builtin.command:
-    cmd: "/home/{{ target_user }}/.cargo/bin/cargo install nu --locked"
-  args:
-    creates: "/home/{{ target_user }}/.cargo/bin/nu"
-
-# --- SECRETS MANAGEMENT ---
-- name: Clone Secrets Repo
-  become: yes
-  become_user: "{{ target_user }}"
-  ansible.builtin.git:
-    repo: 'git@github.com:compilercomplied/secrets.git'
-    dest: "/home/{{ target_user }}/secrets"
-    version: master
-    accept_hostkey: yes
-    force: yes
-
-- name: Convert workstation.env to secrets.nu
-  become: yes
-  become_user: "{{ target_user }}"
-  ansible.builtin.shell: |
-    # Start the Nushell export-env block
-    echo "export-env {" > /home/{{ target_user }}/.config/nushell/env/secrets.nu
-    
-    # Read the env file line by line
-    while IFS='=' read -r key value; do
-      # Skip empty lines and comments
-      if [[ ! -z "$key" && ! "$key" =~ ^# ]]; then
-         # Escape double quotes in value just in case
-         safe_val=$(echo "$value" | sed 's/"/\\"/g')
-         # Write in Nushell syntax
-         echo "  \$env.$key = \"$safe_val\"" >> /home/{{ target_user }}/.config/nushell/env/secrets.nu
-      fi
-    done < /home/{{ target_user }}/secrets/workstation.env
-    
-    # Close the block
-    echo "}" >> /home/{{ target_user }}/.config/nushell/env/secrets.nu
-  args:
-    executable: /bin/bash
-
-# --- BOOTSTRAP ---
-- name: Run Nushell Bootstrap
-  become: yes
-  become_user: "{{ target_user }}"
-  ansible.builtin.command:
-    cmd: "/home/{{ target_user }}/.cargo/bin/nu bootstrap.nu"
-    chdir: "/home/{{ target_user }}/.config/nushell"
-
-- name: Change user shell to Nushell
-  ansible.builtin.user:
-    name: "{{ target_user }}"
-    shell: "/home/{{ target_user }}/.cargo/bin/nu"
-
-- name: Generate zoxide script for Nushell
-  become: yes
-  become_user: "{{ target_user }}"
-  ansible.builtin.shell: /usr/local/bin/zoxide init nushell > /home/{{ target_user }}/.zoxide.nu
-  args:
-    creates: "/home/{{ target_user }}/.zoxide.nu"
-
+- name: Configure Shell (Nushell, Starship, Secrets)
+  ansible.builtin.include_tasks: subtasks/shell_configuration.yml

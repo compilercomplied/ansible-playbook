@@ -32,6 +32,15 @@
     create: yes
     owner: "{{ target_user }}"
 
+- name: Configure Rust in Staged Nushell Env
+  ansible.builtin.blockinfile:
+    path: "/home/{{ target_user }}/.ansible_nushell_env.nu"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK (RUST)"
+    create: yes
+    block: |
+      $env.PATH = ($env.PATH | prepend ($env.HOME + '/.cargo/bin'))
+    owner: "{{ target_user }}"
+
 # --- NODEJS / FNM SETUP ---
 - name: Check if fnm is installed
   ansible.builtin.stat:
@@ -69,6 +78,17 @@
       eval "`fnm env`"
     owner: "{{ target_user }}"
 
+- name: Configure fnm in Staged Nushell Env
+  ansible.builtin.blockinfile:
+    path: "/home/{{ target_user }}/.ansible_nushell_env.nu"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK (FNM)"
+    create: yes
+    block: |
+      $env.PATH = ($env.PATH | prepend ($env.HOME + '/.fnm'))
+      # Initialize fnm for nushell
+      fnm env --json | from json | load-env
+    owner: "{{ target_user }}"
+
 - name: Check if Node is installed
   become: yes
   become_user: "{{ target_user }}"
@@ -91,66 +111,6 @@
   args:
     executable: /bin/bash
   when: node_check.rc != 0
-
-- name: Check if Claude Code is installed
-  ansible.builtin.stat:
-    path: "/home/{{ target_user }}/.local/bin/claude"
-  register: claude_check
-
-- name: Install Global AI Tools (Claude Code)
-  become: yes
-  become_user: "{{ target_user }}"
-  ansible.builtin.shell:
-    cmd: |
-      set -o pipefail
-      export PATH="$HOME/.local/bin:$PATH"
-      curl -fsSL https://claude.ai/install.sh | bash
-    executable: /bin/bash
-  when: not claude_check.stat.exists
-
-- name: Check if Gemini CLI is installed
-  become: yes
-  become_user: "{{ target_user }}"
-  ansible.builtin.shell: |
-    export PATH="/home/{{ target_user }}/.fnm:$PATH"
-    eval "`fnm env`"
-    npm list -g @google/gemini-cli
-  register: gemini_check
-  failed_when: false
-  changed_when: false
-
-- name: Install Gemini CLI
-  become: yes
-  become_user: "{{ target_user }}"
-  ansible.builtin.shell:
-    cmd: |
-      export PATH="/home/{{ target_user }}/.fnm:$PATH"
-      eval "`fnm env`"
-      npm install -g @google/gemini-cli
-    executable: /bin/bash
-  when: gemini_check.rc != 0
-
-- name: Check if Github Copilot is installed
-  become: yes
-  become_user: "{{ target_user }}"
-  ansible.builtin.shell: |
-    export PATH="/home/{{ target_user }}/.fnm:$PATH"
-    eval "`fnm env`"
-    npm list -g @github/copilot
-  register: copilot_check
-  failed_when: false
-  changed_when: false
-
-- name: Install GitHub Copilot CLI
-  become: yes
-  become_user: "{{ target_user }}"
-  ansible.builtin.shell:
-    cmd: |
-      export PATH="/home/{{ target_user }}/.fnm:$PATH"
-      eval "`fnm env`"
-      npm install -g @github/copilot
-    executable: /bin/bash
-  when: copilot_check.rc != 0
 
 # --- PULUMI SETUP ---
 - name: Check if Pulumi is installed
@@ -179,7 +139,7 @@
 - name: Add Pulumi to user .bashrc
   ansible.builtin.lineinfile:
     path: "/home/{{ target_user }}/.bashrc"
-    regexp: 'export PATH=\$PATH:\$HOME/\.pulumi/bin'
+    regexp: 'export PATH=$PATH:$HOME/.pulumi/bin'
     line: 'export PATH=$PATH:$HOME/.pulumi/bin'
     create: yes
     owner: "{{ target_user }}"
@@ -187,9 +147,18 @@
 - name: Add Pulumi to user .profile
   ansible.builtin.lineinfile:
     path: "/home/{{ target_user }}/.profile"
-    regexp: 'export PATH=\$PATH:\$HOME/\.pulumi/bin'
+    regexp: 'export PATH=$PATH:$HOME/.pulumi/bin'
     line: 'export PATH=$PATH:$HOME/.pulumi/bin'
     create: yes
+    owner: "{{ target_user }}"
+
+- name: Configure Pulumi in Staged Nushell Env
+  ansible.builtin.blockinfile:
+    path: "/home/{{ target_user }}/.ansible_nushell_env.nu"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK (PULUMI)"
+    create: yes
+    block: |
+      $env.PATH = ($env.PATH | prepend ($env.HOME + '/.pulumi/bin'))
     owner: "{{ target_user }}"
 
 # --- HELM SETUP ---
@@ -236,31 +205,4 @@
     path: "/home/{{ target_user }}/.profile"
     line: 'eval "$(mise activate bash)"'
     create: yes
-    owner: "{{ target_user }}"
-
-# --- NUSHELL CONFIGURATION ---
-- name: Clone Nushell Configuration
-  become: yes
-  become_user: "{{ target_user }}"
-  ansible.builtin.git:
-    repo: 'git@github.com:compilercomplied/nushell.git'
-    dest: "/home/{{ target_user }}/.config/nushell"
-    version: main
-    accept_hostkey: yes
-    force: yes
-
-- name: Add Programming Envs to Nushell
-  ansible.builtin.blockinfile:
-    path: "/home/{{ target_user }}/.config/nushell/env.nu"
-    marker: "# {mark} ANSIBLE MANAGED BLOCK (PROGRAMMING)"
-    create: yes
-    block: |
-      $env.PATH = ($env.PATH | prepend '/usr/local/go/bin')
-      $env.PATH = ($env.PATH | prepend ($env.HOME + '/go/bin'))
-      $env.PATH = ($env.PATH | prepend ($env.HOME + '/.local/bin'))
-      $env.PATH = ($env.PATH | prepend ($env.HOME + '/.cargo/bin'))
-      $env.PATH = ($env.PATH | prepend ($env.HOME + '/.pulumi/bin'))
-      $env.PATH = ($env.PATH | prepend ($env.HOME + '/.fnm'))
-      # Initialize fnm for nushell
-      fnm env --json | from json | load-env
     owner: "{{ target_user }}"

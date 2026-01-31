@@ -2,9 +2,9 @@
 - name: Provision Workstations
   hosts: workstations
   become: true
+  tags: workstation
   roles:
-    - { role: users, tags: ['workstation'] }
-    - { role: common, tags: ['workstation'] }
+    - users
+    - common
     - docker
-    - { role: programming, tags: ['programming', 'workstation'] }
-    - { role: workstation, tags: ['workstation'] }
+    - workstation

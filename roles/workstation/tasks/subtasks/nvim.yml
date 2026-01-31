@@ -1,0 +1,16 @@
+---
+- name: Install Neovim
+  ansible.builtin.apt:
+    name: neovim
+    state: present
+
+- name: Clone Neovim Configuration
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.git:
+    repo: 'git@github.com:compilercomplied/nvim.git'
+    dest: "/home/{{ target_user }}/.config/nvim"
+    version: master
+    accept_hostkey: yes
+    force: yes
+
