@@ -44,6 +44,16 @@
   args:
     creates: "/home/{{ target_user }}/.cargo/bin/nu"
 
+- name: Ensure Nushell env directory exists
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.file:
+    path: "/home/{{ target_user }}/.config/nushell/env"
+    state: directory
+    owner: "{{ target_user }}"
+    group: "{{ target_user }}"
+    mode: '0755'
+
 - name: Convert workstation.env to secrets.nu
   become: yes
   become_user: "{{ target_user }}"
@@ -58,9 +68,9 @@
          # Escape double quotes in value just in case
          safe_val=$(echo "$value" | sed 's/"/\\"/g')
          # Write in Nushell syntax
-         echo "  $env.$key = \"$safe_val\"" >> /home/{{ target_user }}/.config/nushell/env/secrets.nu
+         echo "  \$env.$key = \"$safe_val\"" >> /home/{{ target_user }}/.config/nushell/env/secrets.nu
       fi
-    done < /home/{{ target_user }}/secrets/workstation.env
+    done < /home/{{ target_user }}/secrets/secrets/workstation.env
     
     # Close the block
     echo "}" >> /home/{{ target_user }}/.config/nushell/env/secrets.nu
