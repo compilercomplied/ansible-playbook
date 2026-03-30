@@ -1,65 +1,129 @@
 ---
+- name: Check if Staged Nushell Env exists
+  ansible.builtin.stat:
+    path: "{{ home_dir }}/.ansible_nushell_env.nu"
+  register: staged_env_check
+  check_mode: no
+
+- name: Add Homebrew to PATH in Staged Nushell Env (macOS)
+  ansible.builtin.blockinfile:
+    path: "{{ home_dir }}/.ansible_nushell_env.nu"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK (HOMEBREW)"
+    create: yes
+    block: |
+      $env.PATH = ($env.PATH | prepend '/opt/homebrew/bin')
+    owner: "{{ target_user }}"
+  when: ansible_os_family == 'Darwin'
+
+- name: Ensure Nushell Config parent directory exists
+  ansible.builtin.file:
+    path: "{{ nushell_config_dir | dirname }}"
+    state: directory
+    mode: '0755'
+
+- name: Check if Nushell Config directory exists
+  ansible.builtin.stat:
+    path: "{{ nushell_config_dir }}"
+  register: nu_dir_check
+
+- name: Check if Nushell Config is a Git Repo
+  ansible.builtin.stat:
+    path: "{{ nushell_config_dir }}/.git"
+  register: nu_git_check
+
+- name: Backup existing Nushell Config if not a Git Repo
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.command:
+    cmd: "mv '{{ nushell_config_dir }}' '{{ nushell_config_dir }}.bak_{{ ansible_date_time.epoch }}'"
+  when: 
+    - nu_dir_check.stat.exists
+    - not nu_git_check.stat.exists
+
+- name: Ensure Nushell Config directory is ready for clone
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.file:
+    path: "{{ nushell_config_dir }}"
+    state: absent
+  when: 
+    - nu_dir_check.stat.exists
+    - not nu_git_check.stat.exists
+
 - name: Clone nushell configuration
   become: yes
   become_user: "{{ target_user }}"
   ansible.builtin.git:
     repo: 'git@github.com:compilercomplied/nushell.git'
-    dest: "/home/{{ target_user }}/.config/nushell"
+    dest: "{{ nushell_config_dir }}"
     version: main
     accept_hostkey: yes
     force: yes
+  check_mode: no
 
 - name: Move ansible managed env.nu to nushell's config dir
   become: yes
   become_user: "{{ target_user }}"
   ansible.builtin.copy:
-    src: "/home/{{ target_user }}/.ansible_nushell_env.nu"
-    dest: "/home/{{ target_user }}/.config/nushell/.ansible_nushell_env.nu"
+    src: "{{ home_dir }}/.ansible_nushell_env.nu"
+    dest: "{{ nushell_config_dir }}/.ansible_nushell_env.nu"
     remote_src: yes
     force: yes
+  when: staged_env_check.stat.exists
 
 - name: Remove staged ansible_nushell_env.nu
   become: yes
   become_user: "{{ target_user }}"
   ansible.builtin.file:
-    path: "/home/{{ target_user }}/.ansible_nushell_env.nu"
+    path: "{{ home_dir }}/.ansible_nushell_env.nu"
     state: absent
+  when: staged_env_check.stat.exists
+
+- name: Ensure Target Bin Directory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ zoxide_bin_dir | default('/usr/local/bin') }}"
+    state: directory
+    mode: '0755'
 
 - name: Install Starship Prompt
-  ansible.builtin.shell: curl -sS https://starship.rs/install.sh | sh -s -- -y
+  become: true
+  ansible.builtin.shell: "curl -sS https://starship.rs/install.sh | sh -s -- -y -b {{ zoxide_bin_dir | default('/usr/local/bin') }}"
   args:
-    creates: /usr/local/bin/starship
+    creates: "{{ starship_bin_path | default('/usr/local/bin/starship') }}"
 
 - name: Install zoxide
-  become: yes
-  ansible.builtin.shell: curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh -s -- --bin-dir /usr/local/bin
+  become: true
+  ansible.builtin.shell: curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh -s -- --bin-dir {{ zoxide_bin_dir | default('/usr/local/bin') }}
   args:
-    creates: /usr/local/bin/zoxide
+    creates: "{{ zoxide_bin_path | default('/usr/local/bin/zoxide') }}"
 
 - name: Install nushell using `cargo install`
   become: yes
   become_user: "{{ target_user }}"
   ansible.builtin.command:
-    cmd: "/home/{{ target_user }}/.cargo/bin/cargo install nu --locked"
+    cmd: "{{ home_dir }}/.cargo/bin/cargo install nu --locked"
   args:
-    creates: "/home/{{ target_user }}/.cargo/bin/nu"
+    creates: "{{ shell_path }}"
 
 - name: Ensure Nushell env directory exists
-  become: yes
-  become_user: "{{ target_user }}"
   ansible.builtin.file:
-    path: "/home/{{ target_user }}/.config/nushell/env"
+    path: "{{ nushell_config_dir }}/env"
     state: directory
-    owner: "{{ target_user }}"
-    group: "{{ target_user }}"
     mode: '0755'
+
+- name: Check if workstation.env exists
+  ansible.builtin.stat:
+    path: "{{ home_dir }}/secrets/secrets/workstation.env"
+  register: secrets_env_check
+  check_mode: no
 
 - name: Convert workstation.env to secrets.nu
   become: yes
   become_user: "{{ target_user }}"
   ansible.builtin.shell: |
     # Start the Nushell export-env block
-    echo "export-env {" > /home/{{ target_user }}/.config/nushell/env/secrets.nu
+    echo "export-env {" > "{{ nushell_config_dir }}/env/secrets.nu"
     
     # Read the env file line by line
     while IFS='=' read -r key value; do
@@ -68,30 +132,32 @@
          # Escape double quotes in value just in case
          safe_val=$(echo "$value" | sed 's/"/\\"/g')
          # Write in Nushell syntax
-         echo "  \$env.$key = \"$safe_val\"" >> /home/{{ target_user }}/.config/nushell/env/secrets.nu
+         echo "  \$env.$key = \"$safe_val\"" >> "{{ nushell_config_dir }}/env/secrets.nu"
       fi
-    done < /home/{{ target_user }}/secrets/secrets/workstation.env
+    done < "{{ home_dir }}/secrets/secrets/workstation.env"
     
     # Close the block
-    echo "}" >> /home/{{ target_user }}/.config/nushell/env/secrets.nu
+    echo "}" >> "{{ nushell_config_dir }}/env/secrets.nu"
   args:
     executable: /bin/bash
+  when: secrets_env_check.stat.exists
 
 - name: Run Nushell Bootstrap
   become: yes
   become_user: "{{ target_user }}"
   ansible.builtin.command:
-    cmd: "/home/{{ target_user }}/.cargo/bin/nu bootstrap.nu"
-    chdir: "/home/{{ target_user }}/.config/nushell"
+    cmd: "{{ shell_path }} bootstrap.nu"
+    chdir: "{{ nushell_config_dir }}"
 
 - name: Change user shell to Nushell
+  become: true
   ansible.builtin.user:
     name: "{{ target_user }}"
-    shell: "/home/{{ target_user }}/.cargo/bin/nu"
+    shell: "{{ shell_path }}"
 
 - name: Generate zoxide script for Nushell
   become: yes
   become_user: "{{ target_user }}"
-  ansible.builtin.shell: /usr/local/bin/zoxide init nushell > /home/{{ target_user }}/.zoxide.nu
+  ansible.builtin.shell: "{{ zoxide_bin_path | default('/usr/local/bin/zoxide') }} init nushell > {{ home_dir }}/.zoxide.nu"
   args:
-    creates: "/home/{{ target_user }}/.zoxide.nu"
+    creates: "{{ home_dir }}/.zoxide.nu"

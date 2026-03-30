@@ -1,8 +1,14 @@
 ---
+- name: Load OS-specific user variables
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+
 - name: Ensure target user exists
+  become: true
   ansible.builtin.user:
     name: "{{ target_user }}"
-    shell: /bin/bash
-    groups: sudo
+    shell: "{{ user_default_shell | default('/bin/bash') }}"
+    groups: "{{ sudo_group | default('sudo') }}"
     append: yes
     create_home: yes
+  # Only run user creation if NOT on a local macOS run (user must exist)
+  when: not (ansible_os_family == 'Darwin' and inventory_hostname == 'localhost')

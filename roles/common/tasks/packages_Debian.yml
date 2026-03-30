@@ -1,0 +1,6 @@
+---
+- name: Install Common Core Packages (Debian)
+  become: true
+  ansible.builtin.apt:
+    name: "{{ core_packages }}"
+    state: present

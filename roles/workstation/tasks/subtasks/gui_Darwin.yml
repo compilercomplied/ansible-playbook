@@ -1,0 +1,13 @@
+---
+- name: Install Homebrew Casks (macOS)
+  community.general.homebrew_cask:
+    name: "{{ gui_casks }}"
+    state: present
+  when: gui_casks is defined
+
+- name: Install Mac App Store Apps (macOS)
+  community.general.mas:
+    id: "{{ item.id }}"
+    state: present
+  loop: "{{ mas_apps }}"
+  when: mas_apps is defined

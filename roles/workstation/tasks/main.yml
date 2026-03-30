@@ -1,6 +1,9 @@
 ---
-- name: Required presetup (packages, checks, secrets...)
-  ansible.builtin.include_tasks: subtasks/presetup.yml
+- name: Load OS-specific variables
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Run Platform Initialization
+  ansible.builtin.include_tasks: "subtasks/setup_{{ ansible_os_family }}.yml"
 
 - name: Install Toolchains and Languages
   ansible.builtin.include_tasks: subtasks/toolchains.yml
@@ -13,3 +16,7 @@
 
 - name: Configure Shell (Nushell, Starship, Secrets)
   ansible.builtin.include_tasks: subtasks/shell_configuration.yml
+
+- name: Install GUI Applications
+  ansible.builtin.include_tasks: subtasks/gui_apps.yml
+  when: is_gui_enabled

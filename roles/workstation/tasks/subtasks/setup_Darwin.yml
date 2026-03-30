@@ -1,0 +1,25 @@
+---
+- name: Install Homebrew Core Packages (macOS)
+  community.general.homebrew:
+    name: "{{ core_packages }}"
+    state: present
+    update_homebrew: yes
+  check_mode: no
+
+- name: Ensure .config directory exists
+  ansible.builtin.file:
+    path: "{{ home_dir }}/.config"
+    state: directory
+    mode: '0755'
+  # No owner/group specified to avoid chown calls on macOS local runs
+
+- name: Clone Secrets Repo
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.git:
+    repo: 'git@github.com:compilercomplied/secrets.git'
+    dest: "{{ home_dir }}/secrets"
+    version: master
+    accept_hostkey: yes
+    force: yes
+  check_mode: no

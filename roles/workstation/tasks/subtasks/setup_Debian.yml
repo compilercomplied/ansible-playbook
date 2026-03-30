@@ -1,0 +1,27 @@
+---
+- name: Install Core Packages (Debian)
+  become: true
+  ansible.builtin.apt:
+    name: "{{ core_packages }}"
+    state: present
+    update_cache: yes
+
+- name: Ensure .config directory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ home_dir }}/.config"
+    state: directory
+    owner: "{{ target_user }}"
+    group: "{{ target_user }}"
+    mode: '0755'
+
+- name: Clone Secrets Repo
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.git:
+    repo: 'git@github.com:compilercomplied/secrets.git'
+    dest: "{{ home_dir }}/secrets"
+    version: master
+    accept_hostkey: yes
+    force: yes
+  check_mode: no

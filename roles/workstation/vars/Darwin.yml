@@ -1,0 +1,29 @@
+---
+# macOS Specific Variables
+home_dir: "/Users/{{ target_user }}"
+shell_path: "{{ home_dir }}/.cargo/bin/nu"
+nushell_config_dir: "{{ home_dir }}/Library/Application Support/nushell"
+starship_bin_path: "/opt/homebrew/bin/starship"
+zoxide_bin_dir: "/opt/homebrew/bin"
+zoxide_bin_path: "/opt/homebrew/bin/zoxide"
+fnm_bin_path: "/opt/homebrew/bin/fnm"
+
+core_packages:
+  - ripgrep
+  - git
+  - curl
+  - gnupg
+  - mas
+  - neovim
+  - fnm
+  - zoxide
+  - starship
+
+gui_casks:
+  - raycast
+  - ghostty
+  - spotify
+
+mas_apps:
+  - { id: 747648833, name: "Telegram" }
+  - { id: 452423196, name: "WhatsApp" }

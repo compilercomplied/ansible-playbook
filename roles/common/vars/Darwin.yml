@@ -1,0 +1,7 @@
+---
+core_packages:
+  - ripgrep
+  - git
+  - curl
+  - unzip
+  - gnupg

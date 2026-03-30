@@ -1,0 +1,7 @@
+---
+- name: Install GUI Packages (Debian)
+  become: true
+  ansible.builtin.apt:
+    name: "{{ gui_packages }}"
+    state: present
+  when: gui_packages is defined

@@ -1,10 +1,8 @@
 ---
 - name: Check if Pulumi is installed
   ansible.builtin.stat:
-    path: "/home/{{ target_user }}/.pulumi/bin/pulumi"
+    path: "{{ home_dir }}/.pulumi/bin/pulumi"
   register: pulumi_check
-  become: yes
-  become_user: "{{ target_user }}"
 
 - name: Download Pulumi installer script
   ansible.builtin.get_url:
@@ -19,12 +17,12 @@
   ansible.builtin.shell: |
     /tmp/install_pulumi.sh
   args:
-    creates: "/home/{{ target_user }}/.pulumi/bin/pulumi"
+    creates: "{{ home_dir }}/.pulumi/bin/pulumi"
   when: not pulumi_check.stat.exists
 
 - name: Add Pulumi to user .bashrc
   ansible.builtin.lineinfile:
-    path: "/home/{{ target_user }}/.bashrc"
+    path: "{{ home_dir }}/.bashrc"
     regexp: 'export PATH=$PATH:$HOME/.pulumi/bin'
     line: 'export PATH=$PATH:$HOME/.pulumi/bin'
     create: yes
@@ -32,7 +30,7 @@
 
 - name: Add Pulumi to user .profile
   ansible.builtin.lineinfile:
-    path: "/home/{{ target_user }}/.profile"
+    path: "{{ home_dir }}/.profile"
     regexp: 'export PATH=$PATH:$HOME/.pulumi/bin'
     line: 'export PATH=$PATH:$HOME/.pulumi/bin'
     create: yes
@@ -40,7 +38,7 @@
 
 - name: Configure Pulumi in Staged Nushell Env
   ansible.builtin.blockinfile:
-    path: "/home/{{ target_user }}/.ansible_nushell_env.nu"
+    path: "{{ home_dir }}/.ansible_nushell_env.nu"
     marker: "# {mark} ANSIBLE MANAGED BLOCK (PULUMI)"
     create: yes
     block: |

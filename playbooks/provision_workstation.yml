@@ -1,10 +1,11 @@
 ---
 - name: Provision Workstations
   hosts: workstations
-  become: true
+  become: false
   tags: workstation
   roles:
     - users
     - common
-    - docker
     - workstation
+    - role: docker
+      when: ansible_os_family == 'Debian'

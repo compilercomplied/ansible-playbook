@@ -10,9 +10,6 @@ core_packages:
   - ripgrep
   - git
   - curl
-  - ssh
-  - vim
-  - build-essential
   - unzip
 
 programming_languages:

@@ -1,0 +1,10 @@
+---
+core_packages:
+  - ripgrep
+  - git
+  - curl
+  - build-essential
+  - unzip
+  - vim
+  - ssh
+  - gnupg

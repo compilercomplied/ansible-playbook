@@ -1,7 +1,7 @@
 ---
 - name: Check if mise is installed
   ansible.builtin.stat:
-    path: "/home/{{ target_user }}/.local/bin/mise"
+    path: "{{ home_dir }}/.local/bin/mise"
   register: mise_check
 
 - name: Install mise
@@ -13,21 +13,21 @@
 
 - name: Add mise to user .bashrc
   ansible.builtin.lineinfile:
-    path: "/home/{{ target_user }}/.bashrc"
+    path: "{{ home_dir }}/.bashrc"
     line: 'eval "$(mise activate bash)"'
     create: yes
     owner: "{{ target_user }}"
 
 - name: Add mise to user .profile
   ansible.builtin.lineinfile:
-    path: "/home/{{ target_user }}/.profile"
+    path: "{{ home_dir }}/.profile"
     line: 'eval "$(mise activate bash)"'
     create: yes
     owner: "{{ target_user }}"
 
 - name: Configure mise in Staged Nushell Env
   ansible.builtin.blockinfile:
-    path: "/home/{{ target_user }}/.ansible_nushell_env.nu"
+    path: "{{ home_dir }}/.ansible_nushell_env.nu"
     marker: "# {mark} ANSIBLE MANAGED BLOCK (MISE)"
     create: yes
     block: |

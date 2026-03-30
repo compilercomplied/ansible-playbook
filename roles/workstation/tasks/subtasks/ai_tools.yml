@@ -1,7 +1,7 @@
 ---
 - name: Check if Claude Code is installed
   ansible.builtin.stat:
-    path: "/home/{{ target_user }}/.local/bin/claude"
+    path: "{{ home_dir }}/.local/bin/claude"
   register: claude_check
 
 - name: Install Global AI Tools (Claude Code)
@@ -16,10 +16,8 @@
   when: not claude_check.stat.exists
 
 - name: Check if Gemini CLI is installed
-  become: yes
-  become_user: "{{ target_user }}"
   ansible.builtin.shell: |
-    export PATH="/home/{{ target_user }}/.fnm:$PATH"
+    export PATH="{{ home_dir }}/.fnm:$PATH"
     eval "`fnm env`"
     npm list -g @google/gemini-cli
   register: gemini_check
@@ -31,17 +29,15 @@
   become_user: "{{ target_user }}"
   ansible.builtin.shell:
     cmd: |
-      export PATH="/home/{{ target_user }}/.fnm:$PATH"
+      export PATH="{{ home_dir }}/.fnm:$PATH"
       eval "`fnm env`"
-      npm install -g @google/gemini-cli
+      npm install -g --force @google/gemini-cli
     executable: /bin/bash
   when: gemini_check.rc != 0
 
 - name: Check if Github Copilot is installed
-  become: yes
-  become_user: "{{ target_user }}"
   ansible.builtin.shell: |
-    export PATH="/home/{{ target_user }}/.fnm:$PATH"
+    export PATH="{{ home_dir }}/.fnm:$PATH"
     eval "`fnm env`"
     npm list -g @github/copilot
   register: copilot_check
@@ -53,7 +49,7 @@
   become_user: "{{ target_user }}"
   ansible.builtin.shell:
     cmd: |
-      export PATH="/home/{{ target_user }}/.fnm:$PATH"
+      export PATH="{{ home_dir }}/.fnm:$PATH"
       eval "`fnm env`"
       npm install -g @github/copilot
     executable: /bin/bash
