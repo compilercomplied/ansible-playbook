@@ -2,7 +2,7 @@
 - name: Install Core Packages (Debian)
   become: true
   ansible.builtin.apt:
-    name: "{{ core_packages }}"
+    name: "{{ core_packages + (user_packages | default([])) }}"
     state: present
     update_cache: yes
 

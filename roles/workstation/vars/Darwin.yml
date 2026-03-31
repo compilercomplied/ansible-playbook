@@ -25,5 +25,5 @@ gui_casks:
   - spotify
 
 mas_apps:
-  - { id: 747648833, name: "Telegram" }
-  - { id: 452423196, name: "WhatsApp" }
+  - { id: 747648890, name: "Telegram" }
+  - { id: 310633997, name: "WhatsApp" }

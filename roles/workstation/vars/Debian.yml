@@ -21,6 +21,8 @@ core_packages:
   - fnm
   - zoxide
   - starship
+  - libatomic1
+  - wl-clipboard
 
 gui_packages:
   - spotify-client

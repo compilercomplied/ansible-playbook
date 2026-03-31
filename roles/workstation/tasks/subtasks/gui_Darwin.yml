@@ -7,7 +7,9 @@
 
 - name: Install Mac App Store Apps (macOS)
   community.general.mas:
-    id: "{{ item.id }}"
+    id: "{{ item.id | int }}"
     state: present
   loop: "{{ mas_apps }}"
   when: mas_apps is defined
+  environment:
+    PATH: "/opt/homebrew/bin:/usr/local/bin:{{ ansible_env.PATH }}"

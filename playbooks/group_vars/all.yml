@@ -21,9 +21,7 @@ user_packages:
   - jq
   - kubectl
   - kubectx
-  - libatomic1 # Gemini cli dependency
   - make
   - sqlite3
   - tree
   - tree-sitter-cli
-  - wl-clipboard
