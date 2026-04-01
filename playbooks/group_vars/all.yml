@@ -1,7 +1,14 @@
 ---
+# ==============================================================================
+# CLI Overridable Configuration (Use -e "var_name=value")
+# ==============================================================================
+is_gui_enabled: true
+install_docker: true
 target_user: gdario
 
-# Debian Source Config
+# ==============================================================================
+# System Defaults
+# ==============================================================================
 debian_mirror: "deb.debian.org"
 debian_release: "testing"
 
