@@ -6,5 +6,5 @@
   roles:
     - common
     - users
-    - docker
+    # - docker # TODO: Refactor this as the docker configuration was moved/split for workstation (Darwin/Debian)
     - cluster

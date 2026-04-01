@@ -20,12 +20,15 @@ For Mac App Store apps to be installed via the `mas` CLI, you **must be signed i
 
 To update the local workstation with the `workstation` tag. The `--ask-become-pass` (or `-K`) argument is required for tasks that need administrative privileges.
 
-Note that `is_gui_enabled` defaults to `true`.
+Note that `is_gui_enabled` and `install_docker` both default to `true`.
 
 ```bash
-# Run with GUI applications (default)
+# Run with GUI applications and Docker (default)
 ansible-playbook site.yml --tags workstation --ask-become-pass
 
 # Run without GUI applications
 ansible-playbook site.yml --tags workstation -e "is_gui_enabled=false" --ask-become-pass
+
+# Run without Docker
+ansible-playbook site.yml --tags workstation -e "install_docker=false" --ask-become-pass
 ```

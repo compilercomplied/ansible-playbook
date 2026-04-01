@@ -7,5 +7,3 @@
     - users
     - common
     - workstation
-    - role: docker
-      when: ansible_os_family == 'Debian'

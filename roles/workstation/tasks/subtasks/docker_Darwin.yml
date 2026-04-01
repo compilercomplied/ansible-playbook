@@ -1,0 +1,16 @@
+---
+- name: Install OrbStack (macOS)
+  community.general.homebrew_cask:
+    name: orbstack
+    state: present
+
+- name: Check if OrbStack is in login items
+  ansible.builtin.shell: |
+    osascript -e 'tell application "System Events" to get the name of every login item'
+  register: login_items
+  changed_when: false
+
+- name: Add OrbStack to login items
+  ansible.builtin.shell: |
+    osascript -e 'tell application "System Events" to make login item at end with properties {name:"OrbStack", path:"/Applications/OrbStack.app", hidden:false}'
+  when: "'OrbStack' not in login_items.stdout"

@@ -1,5 +1,6 @@
 ---
 - name: Install Docker prerequisites
+  become: yes
   ansible.builtin.apt:
     name:
       - ca-certificates
@@ -7,6 +8,7 @@
     state: present
 
 - name: Add Docker GPG key
+  become: yes
   ansible.builtin.get_url:
     url: https://download.docker.com/linux/debian/gpg
     dest: /etc/apt/keyrings/docker.asc
@@ -17,6 +19,7 @@
     docker_arch: "{{ 'amd64' if ansible_facts['architecture'] == 'x86_64' else 'arm64' if ansible_facts['architecture'] == 'aarch64' else ansible_facts['architecture'] }}"
 
 - name: Add Docker Repository
+  become: yes
   ansible.builtin.copy:
     dest: /etc/apt/sources.list.d/docker.list
     content: |
@@ -24,6 +27,7 @@
     force: yes
 
 - name: Install Docker Components
+  become: yes
   ansible.builtin.apt:
     name:
       - docker-ce
@@ -35,6 +39,7 @@
     state: present
 
 - name: Add user to docker group
+  become: yes
   ansible.builtin.user:
     name: "{{ target_user }}"
     groups: docker

@@ -17,6 +17,10 @@
 - name: Configure Shell (Nushell, Starship, Secrets)
   ansible.builtin.include_tasks: subtasks/shell_configuration.yml
 
+- name: Install Docker
+  ansible.builtin.include_tasks: subtasks/docker.yml
+  when: install_docker
+
 - name: Install GUI Applications
   ansible.builtin.include_tasks: subtasks/gui_apps.yml
   when: is_gui_enabled

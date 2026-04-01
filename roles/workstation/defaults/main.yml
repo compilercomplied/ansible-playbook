@@ -2,3 +2,4 @@
 # Under-the-hood defaults for the workstation role.
 # Can be overridden via -e "is_gui_enabled=false" for headless nodes.
 is_gui_enabled: true
+install_docker: true
