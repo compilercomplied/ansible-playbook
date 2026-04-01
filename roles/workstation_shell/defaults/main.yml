@@ -1,0 +1,17 @@
+---
+# Workstation Shell Configuration Defaults
+workstation_paths:
+  - "/opt/homebrew/bin"
+  - "/usr/local/bin"
+  - "/usr/local/sbin"
+  - "$HOME/.orbstack/bin"
+
+# Default directories
+bin_dir: "/usr/local/bin"
+home_dir: "/Users/{{ target_user }}"
+nushell_config_dir: "{{ home_dir }}/Library/Application Support/nushell"
+shell_path: "{{ home_dir }}/.cargo/bin/nu"
+
+# Binary paths for installers
+starship_bin_path: "{{ bin_dir }}/starship"
+zoxide_bin_path: "{{ bin_dir }}/zoxide"

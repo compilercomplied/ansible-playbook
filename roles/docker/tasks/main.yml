@@ -1,3 +1,4 @@
 ---
 - name: "Include OS-Specific Docker Tasks"
   ansible.builtin.include_tasks: "docker_{{ ansible_os_family }}.yml"
+  when: install_docker

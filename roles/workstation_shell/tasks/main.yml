@@ -1,0 +1,6 @@
+---
+- name: Configure Shell (Nushell, Starship, Secrets)
+  ansible.builtin.include_tasks: shell.yml
+
+- name: Configure Neovim
+  ansible.builtin.include_tasks: nvim.yml

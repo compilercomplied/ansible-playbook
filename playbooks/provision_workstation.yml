@@ -6,4 +6,8 @@
   roles:
     - users
     - common
+    - toolchains
+    - workstation_shell
+    - docker
     - workstation
+    - gui_apps

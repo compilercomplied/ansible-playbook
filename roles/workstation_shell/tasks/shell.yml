@@ -5,13 +5,24 @@
   register: staged_env_check
   check_mode: no
 
-- name: Add Homebrew to PATH in Staged Nushell Env (macOS)
+- name: Add standard paths to PATH in Staged Nushell Env (macOS)
   ansible.builtin.blockinfile:
     path: "{{ home_dir }}/.ansible_nushell_env.nu"
-    marker: "# {mark} ANSIBLE MANAGED BLOCK (HOMEBREW)"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK (PATH CONFIGURATION)"
     create: yes
     block: |
-      $env.PATH = ($env.PATH | prepend '/opt/homebrew/bin')
+      {% for path in workstation_paths %}
+      $env.PATH = ($env.PATH | prepend '{{ path }}')
+      {% endfor %}
+      $env.PATH = ($env.PATH | uniq)
+    owner: "{{ target_user }}"
+  when: ansible_os_family == 'Darwin'
+
+- name: Ensure standard paths are in Zsh PATH (macOS)
+  ansible.builtin.lineinfile:
+    path: "{{ home_dir }}/.zshrc"
+    line: 'export PATH="{{ workstation_paths | join(":") }}:$PATH"'
+    create: yes
     owner: "{{ target_user }}"
   when: ansible_os_family == 'Darwin'
 
@@ -82,21 +93,21 @@
 - name: Ensure Target Bin Directory exists
   become: true
   ansible.builtin.file:
-    path: "{{ bin_dir | default('/usr/local/bin') }}"
+    path: "{{ bin_dir }}"
     state: directory
     mode: '0755'
 
 - name: Install Starship Prompt
   become: true
-  ansible.builtin.shell: "curl -sS https://starship.rs/install.sh | sh -s -- -y -b {{ bin_dir | default('/usr/local/bin') }}"
+  ansible.builtin.shell: "curl -sS https://starship.rs/install.sh | sh -s -- -y -b {{ bin_dir }}"
   args:
-    creates: "{{ starship_bin_path | default('/usr/local/bin/starship') }}"
+    creates: "{{ starship_bin_path }}"
 
 - name: Install zoxide
   become: true
-  ansible.builtin.shell: curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh -s -- --bin-dir {{ bin_dir | default('/usr/local/bin') }}
+  ansible.builtin.shell: curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh -s -- --bin-dir {{ bin_dir }}
   args:
-    creates: "{{ zoxide_bin_path | default('/usr/local/bin/zoxide') }}"
+    creates: "{{ zoxide_bin_path }}"
 
 - name: Install nushell using `cargo install`
   become: yes
@@ -158,6 +169,6 @@
 - name: Generate zoxide script for Nushell
   become: yes
   become_user: "{{ target_user }}"
-  ansible.builtin.shell: "{{ zoxide_bin_path | default('/usr/local/bin/zoxide') }} init nushell > {{ home_dir }}/.zoxide.nu"
+  ansible.builtin.shell: "{{ zoxide_bin_path }} init nushell > {{ home_dir }}/.zoxide.nu"
   args:
     creates: "{{ home_dir }}/.zoxide.nu"

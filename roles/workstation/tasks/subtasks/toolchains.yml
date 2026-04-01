@@ -1,4 +1,0 @@
----
-- name: Include all toolchain definitions
-  ansible.builtin.include_tasks: "{{ item }}"
-  loop: "{{ query('fileglob', role_path + '/tasks/subtasks/toolchains/*.yml') | sort }}"

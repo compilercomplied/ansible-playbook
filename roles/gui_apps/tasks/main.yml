@@ -1,0 +1,7 @@
+---
+- name: Load OS-specific GUI variables
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Install GUI Applications
+  ansible.builtin.include_tasks: gui_apps.yml
+  when: is_gui_enabled

@@ -5,22 +5,5 @@
 - name: Run Platform Initialization
   ansible.builtin.include_tasks: "subtasks/setup_{{ ansible_os_family }}.yml"
 
-- name: Install Toolchains and Languages
-  ansible.builtin.include_tasks: subtasks/toolchains.yml
-
-- name: Install nvim
-  ansible.builtin.include_tasks: subtasks/nvim.yml
-
 - name: Install AI Tools
   ansible.builtin.include_tasks: subtasks/ai_tools.yml
-
-- name: Configure Shell (Nushell, Starship, Secrets)
-  ansible.builtin.include_tasks: subtasks/shell_configuration.yml
-
-- name: Install Docker
-  ansible.builtin.include_tasks: subtasks/docker.yml
-  when: install_docker
-
-- name: Install GUI Applications
-  ansible.builtin.include_tasks: subtasks/gui_apps.yml
-  when: is_gui_enabled
