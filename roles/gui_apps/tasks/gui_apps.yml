@@ -1,4 +1,4 @@
 ---
 - name: "Include OS-Specific GUI Tasks"
-  ansible.builtin.include_tasks: "gui_{{ ansible_os_family }}.yml"
+  ansible.builtin.include_tasks: "gui_{{ ansible_facts['os_family'] }}.yml"
 

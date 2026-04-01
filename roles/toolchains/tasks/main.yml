@@ -1,6 +1,6 @@
 ---
 - name: Load OS-specific toolchain variables
-  ansible.builtin.include_vars: "{{ playbook_dir }}/../roles/workstation/vars/{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: "{{ playbook_dir }}/../roles/workstation/vars/{{ ansible_facts['os_family'] }}.yml"
 
 - name: Include all toolchain definitions
   ansible.builtin.include_tasks: "{{ item }}"

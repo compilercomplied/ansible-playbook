@@ -1,6 +1,6 @@
 ---
 - name: Load OS-specific user variables
-  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_facts['os_family'] }}.yml"
 
 - name: Ensure target user exists
   become: true
@@ -11,4 +11,4 @@
     append: yes
     create_home: yes
   # Only run user creation if NOT on a local macOS run (user must exist)
-  when: not (ansible_os_family == 'Darwin' and inventory_hostname == 'localhost')
+  when: not (ansible_facts['os_family'] == 'Darwin' and inventory_hostname == 'localhost')

@@ -16,7 +16,7 @@
       {% endfor %}
       $env.PATH = ($env.PATH | uniq)
     owner: "{{ target_user }}"
-  when: ansible_os_family == 'Darwin'
+  when: ansible_facts['os_family'] == 'Darwin'
 
 - name: Ensure standard paths are in Zsh PATH (macOS)
   ansible.builtin.lineinfile:
@@ -24,7 +24,7 @@
     line: 'export PATH="{{ workstation_paths | join(":") }}:$PATH"'
     create: yes
     owner: "{{ target_user }}"
-  when: ansible_os_family == 'Darwin'
+  when: ansible_facts['os_family'] == 'Darwin'
 
 - name: Ensure Nushell Config parent directory exists
   ansible.builtin.file:
