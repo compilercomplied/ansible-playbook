@@ -8,3 +8,23 @@
 
 - name: Install Common Core Packages
   ansible.builtin.include_tasks: "packages_{{ ansible_facts['os_family'] }}.yml"
+
+- name: Ensure .config directory exists
+  become: "{{ ansible_facts['os_family'] == 'Debian' }}"
+  ansible.builtin.file:
+    path: "{{ home_dir }}/.config"
+    state: directory
+    owner: "{{ target_user if ansible_facts['os_family'] == 'Debian' else omit }}"
+    group: "{{ target_user if ansible_facts['os_family'] == 'Debian' else omit }}"
+    mode: '0755'
+
+- name: Clone Secrets Repo
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.git:
+    repo: 'git@github.com:compilercomplied/secrets.git'
+    dest: "{{ home_dir }}/secrets"
+    version: master
+    accept_hostkey: yes
+    force: yes
+  check_mode: no

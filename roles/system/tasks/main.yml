@@ -4,6 +4,3 @@
 
 - name: Run Platform Initialization
   ansible.builtin.include_tasks: "subtasks/setup_{{ ansible_facts['os_family'] }}.yml"
-
-- name: Install AI Tools
-  ansible.builtin.include_tasks: subtasks/ai_tools.yml

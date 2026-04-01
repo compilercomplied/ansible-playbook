@@ -7,7 +7,9 @@
     - users
     - common
     - toolchains
-    - workstation_shell
+    - ai_tools
+    - terminal
+    - editor
     - docker
-    - workstation
+    - system
     - gui_apps
