@@ -18,6 +18,7 @@ core_packages:
   - fnm
   - zoxide
   - starship
+  - pam-reattach
 
 gui_casks:
   - raycast
