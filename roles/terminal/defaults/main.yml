@@ -4,7 +4,9 @@ workstation_paths:
   - "/opt/homebrew/bin"
   - "/usr/local/bin"
   - "/usr/local/sbin"
-  - "$HOME/.orbstack/bin"
+  - "{{ home_dir }}/.orbstack/bin"
+  - "{{ home_dir }}/.local/bin"
+  - "{{ home_dir }}/.local/share/mise/shims"
 
 # Default directories
 bin_dir: "/usr/local/bin"
