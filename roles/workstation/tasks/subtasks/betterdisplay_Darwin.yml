@@ -1,0 +1,44 @@
+---
+- name: Check if BetterDisplay is in login items
+  ansible.builtin.shell: |
+    osascript -e 'tell application "System Events" to get the name of every login item'
+  register: login_items
+  changed_when: false
+
+- name: Add BetterDisplay to login items
+  ansible.builtin.shell: |
+    osascript -e 'tell application "System Events" to make login item at end with properties {name:"BetterDisplay", path:"/Applications/BetterDisplay.app", hidden:false}'
+  when: "'BetterDisplay' not in login_items.stdout"
+
+- name: Configure BetterDisplay defaults
+  community.general.osx_defaults:
+    domain: pro.betterdisplay.BetterDisplay
+    key: "{{ item.key }}"
+    type: "{{ item.type }}"
+    value: "{{ item.value }}"
+    state: present
+  loop:
+    - { key: 'IsStartAtLogin', type: 'bool', value: true }
+    - { key: 'IsShowInMenuBar', type: 'bool', value: true }
+    - { key: 'IsShowInDock', type: 'bool', value: false }
+
+- name: Check if BetterDisplay CLI exists
+  ansible.builtin.stat:
+    path: "/Applications/BetterDisplay.app/Contents/MacOS/BetterDisplay"
+  register: betterdisplay_bin
+
+- name: Ensure Target Bin Directory exists
+  become: yes
+  ansible.builtin.file:
+    path: "{{ bin_dir | default('/usr/local/bin') }}"
+    state: directory
+    mode: '0755'
+
+- name: Create symlink for BetterDisplay CLI
+  become: yes
+  ansible.builtin.file:
+    src: "/Applications/BetterDisplay.app/Contents/MacOS/BetterDisplay"
+    dest: "{{ bin_dir | default('/usr/local/bin') }}/bd"
+    state: link
+    force: yes
+  when: betterdisplay_bin.stat.exists

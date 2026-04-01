@@ -4,7 +4,7 @@ home_dir: "/home/{{ target_user }}"
 shell_path: "/home/{{ target_user }}/.cargo/bin/nu"
 nushell_config_dir: "{{ home_dir }}/.config/nushell"
 starship_bin_path: "/usr/local/bin/starship"
-zoxide_bin_dir: "/usr/local/bin"
+bin_dir: "/usr/local/bin"
 zoxide_bin_path: "/usr/local/bin/zoxide"
 fnm_bin_path: "{{ home_dir }}/.fnm/fnm"
 

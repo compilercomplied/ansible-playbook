@@ -13,3 +13,6 @@
   when: mas_apps is defined
   environment:
     PATH: "/opt/homebrew/bin:/usr/local/bin:{{ ansible_env.PATH }}"
+
+- name: Configure BetterDisplay (macOS)
+  ansible.builtin.include_tasks: betterdisplay_Darwin.yml
