@@ -1,6 +1,7 @@
 ---
 gui_casks:
   - raycast
+  - alt-tab
   - ghostty
   - spotify
   - betterdisplay
