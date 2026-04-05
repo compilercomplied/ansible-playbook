@@ -5,7 +5,6 @@ shell_path: "{{ home_dir }}/.cargo/bin/nu"
 nushell_config_dir: "{{ home_dir }}/Library/Application Support/nushell"
 starship_bin_path: "/opt/homebrew/bin/starship"
 bin_dir: "/opt/homebrew/bin"
-zoxide_bin_path: "/opt/homebrew/bin/zoxide"
 fnm_bin_path: "/opt/homebrew/bin/fnm"
 
 core_packages:
@@ -16,7 +15,6 @@ core_packages:
   - mas
   - neovim
   - fnm
-  - zoxide
   - starship
   - pam-reattach
 

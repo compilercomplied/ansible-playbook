@@ -16,4 +16,3 @@ shell_path: "{{ home_dir }}/.cargo/bin/nu"
 
 # Binary paths for installers
 starship_bin_path: "{{ bin_dir }}/starship"
-zoxide_bin_path: "{{ bin_dir }}/zoxide"

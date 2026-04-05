@@ -103,12 +103,6 @@
   args:
     creates: "{{ starship_bin_path }}"
 
-- name: Install zoxide
-  become: true
-  ansible.builtin.shell: curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh -s -- --bin-dir {{ bin_dir }}
-  args:
-    creates: "{{ zoxide_bin_path }}"
-
 - name: Install nushell using `cargo install`
   become: yes
   become_user: "{{ target_user }}"
@@ -165,10 +159,3 @@
   ansible.builtin.user:
     name: "{{ target_user }}"
     shell: "{{ shell_path }}"
-
-- name: Generate zoxide script for Nushell
-  become: yes
-  become_user: "{{ target_user }}"
-  ansible.builtin.shell: "{{ zoxide_bin_path }} init nushell > {{ home_dir }}/.zoxide.nu"
-  args:
-    creates: "{{ home_dir }}/.zoxide.nu"

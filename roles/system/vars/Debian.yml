@@ -5,7 +5,6 @@ shell_path: "/home/{{ target_user }}/.cargo/bin/nu"
 nushell_config_dir: "{{ home_dir }}/.config/nushell"
 starship_bin_path: "/usr/local/bin/starship"
 bin_dir: "/usr/local/bin"
-zoxide_bin_path: "/usr/local/bin/zoxide"
 fnm_bin_path: "{{ home_dir }}/.fnm/fnm"
 
 core_packages:
@@ -19,7 +18,6 @@ core_packages:
   - vim
   - ssh
   - fnm
-  - zoxide
   - starship
   - libatomic1
   - wl-clipboard
