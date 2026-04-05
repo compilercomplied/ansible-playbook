@@ -5,6 +5,7 @@ gui_casks:
   - ghostty
   - spotify
   - betterdisplay
+  - obsidian
 
 mas_apps:
   - { id: 747648890, name: "Telegram" }
