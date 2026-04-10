@@ -1,0 +1,17 @@
+---
+- name: Check if SketchyBar is in login items
+  ansible.builtin.shell: |
+    osascript -e 'tell application "System Events" to get the name of every login item'
+  register: login_items
+  changed_when: false
+
+- name: Add SketchyBar to login items
+  ansible.builtin.shell: |
+    osascript -e 'tell application "System Events" to make login item at end with properties {name:"SketchyBar", path:"/Applications/SketchyBar.app", hidden:false}'
+  when: "'SketchyBar' not in login_items.stdout"
+
+- name: Start SketchyBar service via brew
+  ansible.builtin.command: brew services start sketchybar
+  register: sketchybar_service
+  changed_when: "'Service `sketchybar` already started' not in sketchybar_service.stderr"
+  failed_when: false

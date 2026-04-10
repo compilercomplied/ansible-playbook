@@ -1,0 +1,11 @@
+---
+- name: Check if AeroSpace is in login items
+  ansible.builtin.shell: |
+    osascript -e 'tell application "System Events" to get the name of every login item'
+  register: login_items
+  changed_when: false
+
+- name: Add AeroSpace to login items
+  ansible.builtin.shell: |
+    osascript -e 'tell application "System Events" to make login item at end with properties {name:"AeroSpace", path:"/Applications/AeroSpace.app", hidden:false}'
+  when: "'AeroSpace' not in login_items.stdout"

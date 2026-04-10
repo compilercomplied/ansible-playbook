@@ -1,4 +1,16 @@
 ---
+- name: Add Homebrew Taps (macOS)
+  community.general.homebrew_tap:
+    name: "{{ gui_taps }}"
+    state: present
+  when: gui_taps is defined
+
+- name: Install Homebrew Formulas (macOS)
+  community.general.homebrew:
+    name: "{{ gui_formulas }}"
+    state: present
+  when: gui_formulas is defined
+
 - name: Install Homebrew Casks (macOS)
   community.general.homebrew_cask:
     name: "{{ gui_casks }}"
@@ -16,3 +28,9 @@
 
 - name: Configure BetterDisplay (macOS)
   ansible.builtin.include_tasks: betterdisplay_Darwin.yml
+
+- name: Configure AeroSpace (macOS)
+  ansible.builtin.include_tasks: aerospace_Darwin.yml
+
+- name: Configure SketchyBar (macOS)
+  ansible.builtin.include_tasks: sketchybar_Darwin.yml

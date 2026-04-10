@@ -1,4 +1,11 @@
 ---
+gui_taps:
+  - nikitabobko/tap # Dependency for AeroSpace
+  - felixkratz/formulae # Dependency for SketchyBar
+
+gui_formulas:
+  - sketchybar
+
 gui_casks:
   - raycast
   - alt-tab
@@ -6,6 +13,7 @@ gui_casks:
   - spotify
   - betterdisplay
   - obsidian
+  - aerospace
 
 mas_apps:
   - { id: 747648890, name: "Telegram" }
