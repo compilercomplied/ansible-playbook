@@ -7,7 +7,6 @@ gui_formulas:
   - sketchybar
 
 gui_casks:
-  - raycast
   - alt-tab
   - ghostty
   - spotify

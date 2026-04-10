@@ -21,6 +21,7 @@ core_packages:
   - starship
   - libatomic1
   - wl-clipboard
+  - zellij
 
 gui_packages:
   - spotify-client

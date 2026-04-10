@@ -8,3 +8,4 @@ core_packages:
   - vim
   - ssh
   - gnupg
+  - zellij

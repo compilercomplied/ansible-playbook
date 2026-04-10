@@ -17,9 +17,9 @@ core_packages:
   - fnm
   - starship
   - pam-reattach
+  - zellij
 
 gui_casks:
-  - raycast
   - ghostty
   - spotify
   - betterdisplay

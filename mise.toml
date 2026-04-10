@@ -1,0 +1,3 @@
+[tasks."run:workstation"]
+run = "ansible-playbook site.yml --tags workstation --ask-become-pass"
+description = "Provision local workstation with Ansible"
