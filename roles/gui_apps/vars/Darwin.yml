@@ -7,12 +7,14 @@ gui_formulas:
   - sketchybar
 
 gui_casks:
-  - alt-tab
-  - ghostty
-  - spotify
-  - betterdisplay
-  - obsidian
   - aerospace
+  - alt-tab
+  - betterdisplay
+  - font-jetbrains-mono-nerd-font
+  - ghostty
+  - obsidian
+  - spotify
+  - wezterm
 
 mas_apps:
   - { id: 747648890, name: "Telegram" }
