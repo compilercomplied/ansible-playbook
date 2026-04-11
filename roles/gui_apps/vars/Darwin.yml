@@ -11,7 +11,7 @@ gui_casks:
   - alt-tab
   - betterdisplay
   - font-jetbrains-mono-nerd-font
-  - ghostty
+  - lm-studio
   - obsidian
   - spotify
   - wezterm
