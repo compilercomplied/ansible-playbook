@@ -2,6 +2,7 @@
 core_packages:
   - ripgrep
   - git
+  - git-lfs
   - curl
   - build-essential
   - unzip

@@ -9,6 +9,21 @@
 - name: Install Common Core Packages
   ansible.builtin.include_tasks: "packages_{{ ansible_facts['os_family'] }}.yml"
 
+- name: Check if Git LFS is initialized
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.command: git config --global filter.lfs.smudge
+  register: git_lfs_check
+  changed_when: false
+  failed_when: false
+  check_mode: no
+
+- name: Initialize Git LFS
+  become: yes
+  become_user: "{{ target_user }}"
+  ansible.builtin.command: git lfs install
+  when: git_lfs_check.rc != 0
+
 - name: Ensure .config directory exists
   become: "{{ ansible_facts['os_family'] == 'Debian' }}"
   ansible.builtin.file:
