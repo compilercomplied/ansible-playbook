@@ -10,6 +10,7 @@ gui_casks:
   - aerospace
   - alt-tab
   - betterdisplay
+  - localsend
   - font-jetbrains-mono-nerd-font
   - lm-studio
   - obsidian
