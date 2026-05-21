@@ -15,25 +15,21 @@
     executable: /bin/bash
   when: not claude_check.stat.exists
 
-- name: Check if Gemini CLI is installed
-  ansible.builtin.shell: |
-    export PATH="{{ home_dir }}/.fnm:$PATH"
-    eval "`fnm env`"
-    npm list -g @google/gemini-cli
-  register: gemini_check
-  failed_when: false
-  changed_when: false
+- name: Check if Antigravity CLI is installed
+  ansible.builtin.stat:
+    path: "{{ home_dir }}/.local/bin/agy"
+  register: antigravity_check
 
-- name: Install Gemini CLI
+- name: Install Global AI Tools (Antigravity CLI)
   become: yes
   become_user: "{{ target_user }}"
   ansible.builtin.shell:
     cmd: |
-      export PATH="{{ home_dir }}/.fnm:$PATH"
-      eval "`fnm env`"
-      npm install -g --force @google/gemini-cli
+      set -o pipefail
+      export PATH="$HOME/.local/bin:$PATH"
+      curl -fsSL https://antigravity.google/cli/install.sh | bash
     executable: /bin/bash
-  when: gemini_check.rc != 0
+  when: not antigravity_check.stat.exists
 
 - name: Check if Github Copilot is installed
   ansible.builtin.shell: |
