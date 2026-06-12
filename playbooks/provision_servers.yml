@@ -5,6 +5,7 @@
   tags: servers
   roles:
     - common
-    - users
+    - role: users
+      when: not (skip_user_creation | default(false) | bool)
     # - docker # TODO: Refactor this as the docker configuration was moved/split for workstation (Darwin/Debian)
     - cluster

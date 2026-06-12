@@ -4,7 +4,8 @@
   become: false
   tags: workstation
   roles:
-    - users
+    - role: users
+      when: not (skip_user_creation | default(false) | bool)
     - common
     - toolchains
     - ai_tools

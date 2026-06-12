@@ -3,7 +3,7 @@
   ansible.builtin.include_vars: "{{ ansible_facts['os_family'] }}.yml"
 
 - name: Ensure target user exists
-  become: "{{ not (skip_user_creation | default(false) | bool) }}"
+  become: "{{ not (skip_user_creation | default(false) | bool) | ternary('yes', 'no') }}"
   ansible.builtin.user:
     name: "{{ target_user }}"
     shell: "{{ user_default_shell | default('/bin/bash') }}"
