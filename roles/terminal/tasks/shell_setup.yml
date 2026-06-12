@@ -91,14 +91,14 @@
   when: staged_env_check.stat.exists
 
 - name: Ensure Target Bin Directory exists
-  become: true
+  become: "{{ (ansible_os_family != 'Darwin') | ternary('yes', 'no') }}"
   ansible.builtin.file:
     path: "{{ bin_dir }}"
     state: directory
     mode: '0755'
 
 - name: Install Starship Prompt
-  become: true
+  become: "{{ (ansible_os_family != 'Darwin') | ternary('yes', 'no') }}"
   ansible.builtin.shell: "curl -sS https://starship.rs/install.sh | sh -s -- -y -b {{ bin_dir }}"
   args:
     creates: "{{ starship_bin_path }}"
@@ -153,9 +153,3 @@
   ansible.builtin.command:
     cmd: "{{ shell_path }} bootstrap.nu"
     chdir: "{{ nushell_config_dir }}"
-
-- name: Change user shell to Nushell
-  become: true
-  ansible.builtin.user:
-    name: "{{ target_user }}"
-    shell: "{{ shell_path }}"

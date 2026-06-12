@@ -7,7 +7,7 @@
   check_mode: no
 
 - name: Enable Touch ID for sudo (macOS Sonoma+)
-  become: yes
+  become: "{{ (configure_touchid_sudo | default(true) | bool) | ternary('yes', 'no') }}"
   ansible.builtin.blockinfile:
     path: /etc/pam.d/sudo_local
     create: yes
@@ -18,4 +18,6 @@
       # Managed by Ansible - Enable Touch ID for sudo
       auth       optional       /opt/homebrew/lib/pam/pam_reattach.so
       auth       sufficient     pam_tid.so
-  when: ansible_facts['os_family'] == 'Darwin'
+  when: 
+    - ansible_facts['os_family'] == 'Darwin'
+    - configure_touchid_sudo | default(true) | bool

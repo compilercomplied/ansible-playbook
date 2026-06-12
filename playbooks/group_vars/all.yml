@@ -9,9 +9,8 @@ target_user: gdario
 # Privilege escalation for user-space tasks (disabled on macOS/Darwin where we run as target user)
 user_become: "{{ ansible_os_family != 'Darwin' }}"
 
-# User Creation Options
-skip_user_creation: false
-create_user_home: true
+# System Configuration Options
+configure_touchid_sudo: false
 
 # Dynamically resolve home directory if not overridden
 home_dir: "{{ '/Users/' ~ target_user if ansible_os_family == 'Darwin' else '/home/' ~ target_user }}"

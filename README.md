@@ -23,16 +23,30 @@ ansible-playbook site.yml --tags workstation -e "is_gui_enabled=false install_do
 ```
 
 ### Pre-Provisioned Systems & Custom User Configuration
-If you are running the playbook on a system that is already provisioned with a user (such as a corporate-managed Mac or Linux machine), or if you want to run the playbook for a specific target user, you can configure these options:
+To keep workstation provisioning safe, compliant, and friction-free on corporate-managed machines, this playbook runs completely in **user-space** by default on macOS:
+*   **User Creation:** Bypassed entirely for workstations (as the login account already exists).
+*   **Shell Changes:** Bypassed in the playbook. You can change your default shell manually (see below).
+*   **Sudo Privilege Escalation:** Disabled by default on macOS, meaning you can run the playbook **without** `--ask-become-pass` or root access.
 
-*   `target_user`: The user account to configure (defaults to `gdario`).
-*   `skip_user_creation`: Set to `true` to skip the OS-level user creation task (ideal for pre-provisioned corporate laptops).
-*   `create_user_home`: Set to `false` to skip creating the home directory during user creation (defaults to `true`).
-*   `home_dir`: The path to the user's home directory. By default, this is dynamically resolved based on the OS (`/Users/{{ target_user }}` on macOS/Darwin, `/home/{{ target_user }}` on Debian/Linux), but can be fully overridden.
-
-**Example: Running on a corporate laptop with a pre-existing user**
+#### 1. (Optional) Change your default shell to Nushell:
+Run this one-time command in your terminal:
 ```bash
-ansible-playbook site.yml --tags workstation -e "target_user=your_username skip_user_creation=true" --ask-become-pass
+chsh -s ~/.cargo/bin/nu
+```
+
+#### 2. Running the playbook:
+*   `target_user`: The user account to configure (defaults to `gdario`).
+*   `home_dir`: The path to the user's home directory. Resolved dynamically based on the OS (`/Users/{{ target_user }}` on macOS, `/home/{{ target_user }}` on Linux), but can be overridden.
+*   `configure_touchid_sudo`: Set to `true` if you have sudo access and want to enable Touch ID for sudo on macOS (defaults to `false`).
+
+**Example: Running on a work Mac (passwordless, user-space execution):**
+```bash
+ansible-playbook site.yml --tags workstation -e "target_user=your_username"
+```
+
+**Example: Running on a personal Mac (with Touch ID sudo configuration):**
+```bash
+ansible-playbook site.yml --tags workstation -e "target_user=your_username configure_touchid_sudo=true" --ask-become-pass
 ```
 
 ## Prerequisites
