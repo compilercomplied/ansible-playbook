@@ -12,7 +12,7 @@
   when: not pulumi_check.stat.exists
 
 - name: Install Pulumi
-  become: yes
+  become: "{{ user_become }}"
   become_user: "{{ target_user }}"
   ansible.builtin.shell: |
     /tmp/install_pulumi.sh

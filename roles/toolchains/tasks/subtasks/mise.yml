@@ -5,7 +5,7 @@
   register: mise_check
 
 - name: Install mise
-  become: yes
+  become: "{{ user_become }}"
   become_user: "{{ target_user }}"
   ansible.builtin.shell: |
     curl https://mise.run | sh

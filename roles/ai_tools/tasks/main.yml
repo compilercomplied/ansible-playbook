@@ -5,7 +5,7 @@
   register: claude_check
 
 - name: Install Global AI Tools (Claude Code)
-  become: yes
+  become: "{{ user_become }}"
   become_user: "{{ target_user }}"
   ansible.builtin.shell:
     cmd: |
@@ -21,7 +21,7 @@
   register: antigravity_check
 
 - name: Install Global AI Tools (Antigravity CLI)
-  become: yes
+  become: "{{ user_become }}"
   become_user: "{{ target_user }}"
   ansible.builtin.shell:
     cmd: |
@@ -41,7 +41,7 @@
   changed_when: false
 
 - name: Install GitHub Copilot CLI
-  become: yes
+  become: "{{ user_become }}"
   become_user: "{{ target_user }}"
   ansible.builtin.shell:
     cmd: |

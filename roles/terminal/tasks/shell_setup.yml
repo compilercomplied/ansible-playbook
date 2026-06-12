@@ -43,7 +43,7 @@
   register: nu_git_check
 
 - name: Backup existing Nushell Config if not a Git Repo
-  become: yes
+  become: "{{ user_become }}"
   become_user: "{{ target_user }}"
   ansible.builtin.command:
     cmd: "mv '{{ nushell_config_dir }}' '{{ nushell_config_dir }}.bak_{{ ansible_date_time.epoch }}'"
@@ -52,7 +52,7 @@
     - not nu_git_check.stat.exists
 
 - name: Ensure Nushell Config directory is ready for clone
-  become: yes
+  become: "{{ user_become }}"
   become_user: "{{ target_user }}"
   ansible.builtin.file:
     path: "{{ nushell_config_dir }}"
@@ -62,7 +62,7 @@
     - not nu_git_check.stat.exists
 
 - name: Clone nushell configuration
-  become: yes
+  become: "{{ user_become }}"
   become_user: "{{ target_user }}"
   ansible.builtin.git:
     repo: 'git@github.com:compilercomplied/nushell.git'
@@ -73,7 +73,7 @@
   check_mode: no
 
 - name: Move ansible managed env.nu to nushell's config dir
-  become: yes
+  become: "{{ user_become }}"
   become_user: "{{ target_user }}"
   ansible.builtin.copy:
     src: "{{ home_dir }}/.ansible_nushell_env.nu"
@@ -83,7 +83,7 @@
   when: staged_env_check.stat.exists
 
 - name: Remove staged ansible_nushell_env.nu
-  become: yes
+  become: "{{ user_become }}"
   become_user: "{{ target_user }}"
   ansible.builtin.file:
     path: "{{ home_dir }}/.ansible_nushell_env.nu"
@@ -104,7 +104,7 @@
     creates: "{{ starship_bin_path }}"
 
 - name: Install nushell using `cargo install`
-  become: yes
+  become: "{{ user_become }}"
   become_user: "{{ target_user }}"
   ansible.builtin.command:
     cmd: "{{ home_dir }}/.cargo/bin/cargo install nu --locked"
@@ -124,7 +124,7 @@
   check_mode: no
 
 - name: Convert workstation.env to secrets.nu
-  become: yes
+  become: "{{ user_become }}"
   become_user: "{{ target_user }}"
   ansible.builtin.shell: |
     # Start the Nushell export-env block
@@ -148,7 +148,7 @@
   when: secrets_env_check.stat.exists
 
 - name: Run Nushell Bootstrap
-  become: yes
+  become: "{{ user_become }}"
   become_user: "{{ target_user }}"
   ansible.builtin.command:
     cmd: "{{ shell_path }} bootstrap.nu"

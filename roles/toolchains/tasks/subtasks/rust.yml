@@ -12,7 +12,7 @@
   when: not rustup_check.stat.exists
 
 - name: Install Rust (User space)
-  become: yes
+  become: "{{ user_become }}"
   become_user: "{{ target_user }}"
   ansible.builtin.shell: /tmp/sh.rustup.rs -y
   when: not rustup_check.stat.exists

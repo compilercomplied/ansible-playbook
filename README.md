@@ -17,9 +17,22 @@ Instead of using a single "Fat Role" for system types (e.g., a "workstation" rol
 
 Variables that can be overridden are defined in `playbooks/group_vars/all.yml` and act as the "Public API" for this playbook.
 
-### Example Override:
+### General Overrides
 ```bash
 ansible-playbook site.yml --tags workstation -e "is_gui_enabled=false install_docker=false" --ask-become-pass
+```
+
+### Pre-Provisioned Systems & Custom User Configuration
+If you are running the playbook on a system that is already provisioned with a user (such as a corporate-managed Mac or Linux machine), or if you want to run the playbook for a specific target user, you can configure these options:
+
+*   `target_user`: The user account to configure (defaults to `gdario`).
+*   `skip_user_creation`: Set to `true` to skip the OS-level user creation task (ideal for pre-provisioned corporate laptops).
+*   `create_user_home`: Set to `false` to skip creating the home directory during user creation (defaults to `true`).
+*   `home_dir`: The path to the user's home directory. By default, this is dynamically resolved based on the OS (`/Users/{{ target_user }}` on macOS/Darwin, `/home/{{ target_user }}` on Debian/Linux), but can be fully overridden.
+
+**Example: Running on a corporate laptop with a pre-existing user**
+```bash
+ansible-playbook site.yml --tags workstation -e "target_user=your_username skip_user_creation=true" --ask-become-pass
 ```
 
 ## Prerequisites

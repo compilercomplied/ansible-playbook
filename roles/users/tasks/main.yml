@@ -9,6 +9,6 @@
     shell: "{{ user_default_shell | default('/bin/bash') }}"
     groups: "{{ sudo_group | default('sudo') }}"
     append: yes
-    create_home: yes
-  # Only run user creation if NOT on a local macOS run (user must exist)
-  when: not (ansible_facts['os_family'] == 'Darwin' and inventory_hostname == 'localhost')
+    create_home: "{{ create_user_home | default(true) | bool }}"
+  # Only run user creation if not skipped
+  when: not (skip_user_creation | default(false) | bool)

@@ -12,7 +12,7 @@
   when: not fnm_check.stat.exists
 
 - name: Install fnm
-  become: yes
+  become: "{{ user_become }}"
   become_user: "{{ target_user }}"
   ansible.builtin.shell: /tmp/install_fnm.sh --install-dir "{{ fnm_bin_path | dirname }}" --skip-shell
   when: not fnm_check.stat.exists
@@ -58,7 +58,7 @@
   changed_when: false
 
 - name: Install Latest Node via fnm
-  become: yes
+  become: "{{ user_become }}"
   become_user: "{{ target_user }}"
   ansible.builtin.shell: |
     export PATH="{{ fnm_bin_path | dirname }}:$PATH"

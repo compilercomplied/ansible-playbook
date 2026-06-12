@@ -10,7 +10,7 @@
   ansible.builtin.include_tasks: "packages_{{ ansible_facts['os_family'] }}.yml"
 
 - name: Check if Git LFS is initialized
-  become: yes
+  become: "{{ user_become }}"
   become_user: "{{ target_user }}"
   ansible.builtin.command: git config --global filter.lfs.smudge
   register: git_lfs_check
@@ -19,7 +19,7 @@
   check_mode: no
 
 - name: Initialize Git LFS
-  become: yes
+  become: "{{ user_become }}"
   become_user: "{{ target_user }}"
   ansible.builtin.command: git lfs install
   when: git_lfs_check.rc != 0
@@ -34,7 +34,7 @@
     mode: '0755'
 
 - name: Clone Secrets Repo
-  become: yes
+  become: "{{ user_become }}"
   become_user: "{{ target_user }}"
   ansible.builtin.git:
     repo: 'git@github.com:compilercomplied/secrets.git'
