@@ -1,0 +1,76 @@
+# ==============================================================================
+# Managed by Ansible - Debian Preseed Configuration
+# ==============================================================================
+
+# --- Locales and Keyboard ---
+d-i debian-installer/locale string en_US
+d-i keyboard-configuration/xkb-keymap select us
+d-i keyboard-configuration/variant select intl
+
+# --- Network Configuration ---
+d-i netcfg/choose_interface select auto
+{% set target_host = groups['bare_metal'][0] | default('debian-node') %}
+{% set hostname_parts = target_host.split('.') %}
+d-i netcfg/get_hostname string {{ hostname_parts[0] }}
+d-i netcfg/get_domain string {{ hostname_parts[1:] | join('.') if hostname_parts | length > 1 else 'local' }}
+d-i hw-detect/load_media boolean true
+
+# --- Package Mirrors ---
+d-i mirror/country string manual
+d-i mirror/http/hostname string cdn-fastly.deb.debian.org
+d-i mirror/http/directory string /debian
+d-i mirror/http/proxy string
+d-i mirror/suite string {{ debian_release | default('testing') }}
+
+# --- Clock and Time Zone ---
+d-i clock-setup/utc boolean true
+d-i time/zone string Europe/Madrid
+d-i clock-setup/ntp boolean true
+
+# --- Partitioning ---
+d-i partman/early_command string \
+    PRIMARYDISK=$(list-devices disk | head -n 1); \
+    debconf-set partman-auto/disk "$PRIMARYDISK"; \
+    debconf-set grub-installer/bootdev "$PRIMARYDISK"
+d-i partman-auto/method string regular
+d-i partman-auto/choose_recipe select atomic
+d-i partman-partitioning/confirm_write_new_label boolean true
+d-i partman/choose_partition select finish
+d-i partman/confirm boolean true
+d-i partman/confirm_nochanges boolean true
+d-i partman/confirm_nooverwrite boolean true
+d-i partman-lvm/device_remove_lvm boolean true
+d-i partman-md/device_remove_md boolean true
+d-i partman-lvm/confirm boolean true
+d-i partman-lvm/confirm_nooverwrite boolean true
+
+# --- User Account Creation ---
+d-i passwd/root-login boolean false
+d-i passwd/user-fullname string {{ target_user | default('gdario') | capitalize }}
+d-i passwd/username string {{ target_user | default('gdario') }}
+d-i passwd/user-password password change_me_immediately
+d-i passwd/user-password-again password change_me_immediately
+
+# --- Package Selection & Installation ---
+tasksel tasksel/first multiselect standard, ssh-server
+d-i pkgsel/include string python3 python3-pip sudo curl git openssh-server
+d-i pkgsel/upgrade select safe-upgrade
+
+# --- Bootloader (GRUB) ---
+d-i grub-installer/only_debian boolean true
+d-i grub-installer/with_other_os boolean true
+d-i grub-installer/bootdev string default
+
+# --- Late Commands (Post-Install Customization) ---
+d-i preseed/late_command string \
+    in-target mkdir -p /home/{{ target_user }}/.ssh; \
+    in-target /bin/sh -c "echo '{{ lookup('file', ssh_public_key_path) }}' > /home/{{ target_user }}/.ssh/authorized_keys"; \
+    in-target chown -R {{ target_user }}:{{ target_user }} /home/{{ target_user }}/.ssh; \
+    in-target chmod 700 /home/{{ target_user }}/.ssh; \
+    in-target chmod 600 /home/{{ target_user }}/.ssh/authorized_keys; \
+    in-target /bin/sh -c "echo '{{ target_user }} ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/{{ target_user }}"; \
+    in-target chmod 0440 /etc/sudoers.d/{{ target_user }}; \
+    in-target /bin/sh -c "printf 'deb http://cdn-fastly.deb.debian.org/debian/ testing main contrib non-free\ndeb-src http://cdn-fastly.deb.debian.org/debian/ testing main contrib non-free\n\ndeb http://cdn-fastly.deb.debian.org/debian/ testing-updates main contrib non-free\ndeb-src http://cdn-fastly.deb.debian.org/debian/ testing-updates main contrib non-free\n\ndeb http://security.debian.org/ testing/updates main contrib non-free\ndeb-src http://security.debian.org/ testing/updates main contrib non-free\n' > /etc/apt/sources.list"
+
+# --- Finish Installation ---
+d-i finish-install/reboot_in_progress note

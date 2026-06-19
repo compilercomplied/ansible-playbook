@@ -72,3 +72,38 @@ To update the local workstation with the `workstation` tag. The `--ask-become-pa
 # Default run. Assumes a fat laptop is being used (docker, GUIs...)
 ansible-playbook site.yml --tags workstation --ask-become-pass
 ```
+
+### Bare Metal Network Provisioning (PXE & Automated Install)
+
+This project includes fully automated network installation support for provisioning new physical nodes (such as target cluster machines) over the local network via PXE boot and Debian preseeding.
+
+#### 1. Hardware & BIOS Requirements
+Before booting the target machine, make sure you configure its BIOS/UEFI settings as follows:
+* **Boot Mode:** Select **Legacy Boot** (CSM/BIOS only; UEFI PXE Proxy DHCP is unsupported on some network cards).
+* **Storage Mode:** Ensure the SATA/Storage controller is set to **AHCI** mode. *(Note: The Linux kernel will not detect the storage drives if the controller is in Intel RST / RAID / VMD mode).*
+* **Boot Order:** Enable network boot (PXE) and set it as the primary boot interface.
+
+#### 2. Start the PXE Boot & HTTP Server
+Run the local PXE boot services (dnsmasq for DHCP Proxy/TFTP, and Nginx in Docker to host `preseed.cfg`):
+```bash
+mise run run:bare-metal-start
+```
+*(Alternatively: `ansible-playbook site.yml --tags bare-metal --ask-become-pass`)*
+
+#### 3. Perform the Installation
+1. Power on the target machine connected to the same local network.
+2. It will boot from the network, request a DHCP IP, and download the installer files over TFTP (which takes ~2 minutes).
+3. The installer will boot automatically, retrieve `preseed.cfg` via HTTP, automatically partition the primary drive, setup user `gdario` with your workstation's SSH key, and install the base OS completely hands-free.
+
+#### 4. Stop the PXE Server & Clean Up
+Once the installation finishes and the machine reboots into the new OS, stop the local PXE boot services to free up ports and system resources:
+```bash
+mise run run:bare-metal-stop
+```
+*(Alternatively: `ansible-playbook site.yml --tags bare-metal -e 'pxe_state=stopped' --ask-become-pass`)*
+
+#### 5. Provision the Cluster Node
+Once the machine is running Debian, you can configure it (Docker, runtimes, utilities) using the cluster tags:
+```bash
+ansible-playbook site.yml --limit cluster --tags cluster
+```

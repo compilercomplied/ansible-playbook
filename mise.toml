@@ -1,3 +1,11 @@
 [tasks."run:workstation"]
-run = "ansible-playbook site.yml --tags workstation --ask-become-pass"
+run = "ansible-playbook site.yml --tags workstation"
 description = "Provision local workstation with Ansible"
+
+[tasks."run:bare-metal-start"]
+run = "ansible-playbook site.yml --tags bare-metal --ask-become-pass"
+description = "Start the local PXE boot server to install Debian on bare-metal"
+
+[tasks."run:bare-metal-stop"]
+run = "ansible-playbook site.yml --tags bare-metal -e 'pxe_state=stopped' --ask-become-pass"
+description = "Stop the local PXE boot server and clean up services"

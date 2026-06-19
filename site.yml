@@ -1,4 +1,5 @@
 ---
-- import_playbook: playbooks/bootstrap.yml
-- import_playbook: playbooks/provision_servers.yml
 - import_playbook: playbooks/provision_workstation.yml
+- import_playbook: playbooks/provision_cluster.yml
+- import_playbook: playbooks/provision_bare_metal.yml
+  tags: bare-metal

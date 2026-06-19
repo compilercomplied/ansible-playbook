@@ -1,0 +1,10 @@
+---
+- name: Provision Cluster Nodes
+  hosts: cluster
+  become: true
+  tags: cluster
+  roles:
+    - common
+    - role: users
+      when: not (skip_user_creation | default(false) | bool)
+    - cluster

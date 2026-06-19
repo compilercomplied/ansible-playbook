@@ -42,3 +42,4 @@ user_packages:
   - tree
   - tree-sitter-cli
   - zellij
+  - dnsmasq
