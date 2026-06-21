@@ -8,5 +8,6 @@ core_packages:
   - unzip
   - vim
   - ssh
+  - syncthing
   - gnupg
   - zellij

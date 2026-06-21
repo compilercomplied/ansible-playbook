@@ -6,4 +6,5 @@ core_packages:
   - curl
   - unzip
   - gnupg
+  - syncthing
   - zellij
