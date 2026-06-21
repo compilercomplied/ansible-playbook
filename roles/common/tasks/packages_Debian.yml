@@ -4,3 +4,13 @@
   ansible.builtin.apt:
     name: "{{ core_packages }}"
     state: present
+
+- name: Start Syncthing service (Debian)
+  ansible.builtin.systemd:
+    name: syncthing
+    scope: user
+    enabled: yes
+    state: started
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ ansible_effective_user_id }}"
+

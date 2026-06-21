@@ -4,3 +4,9 @@
     name: "{{ core_packages }}"
     state: present
     update_homebrew: yes
+
+- name: Start Syncthing service (macOS)
+  community.general.homebrew_services:
+    name: syncthing
+    state: present
+
