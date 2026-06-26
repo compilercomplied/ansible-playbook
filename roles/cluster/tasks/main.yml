@@ -1,4 +1,16 @@
 ---
+- name: Install open-iscsi for Longhorn storage support
+  ansible.builtin.apt:
+    name: open-iscsi
+    state: present
+    update_cache: yes
+
+- name: Ensure iscsid service is started and enabled
+  ansible.builtin.service:
+    name: iscsid
+    state: started
+    enabled: yes
+
 - name: Ensure k3s config directory exists
   ansible.builtin.file:
     path: /etc/rancher/k3s

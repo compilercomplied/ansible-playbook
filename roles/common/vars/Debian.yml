@@ -1,5 +1,5 @@
 ---
-core_packages:
+common_packages:
   - ripgrep
   - git
   - git-lfs
@@ -8,6 +8,9 @@ core_packages:
   - unzip
   - vim
   - ssh
-  - syncthing
   - gnupg
+
+workstation_packages:
+  - syncthing
   - zellij
+

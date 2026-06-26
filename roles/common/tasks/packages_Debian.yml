@@ -2,7 +2,7 @@
 - name: Install Common Core Packages (Debian)
   become: true
   ansible.builtin.apt:
-    name: "{{ core_packages }}"
+    name: "{{ common_packages + (workstation_packages if is_workstation | default(false) | bool else []) }}"
     state: present
 
 - name: Start Syncthing service (Debian)
@@ -13,4 +13,4 @@
     state: started
   environment:
     XDG_RUNTIME_DIR: "/run/user/{{ ansible_effective_user_id }}"
-
+  when: is_workstation | default(false) | bool
