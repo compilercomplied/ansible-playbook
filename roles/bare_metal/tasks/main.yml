@@ -44,6 +44,16 @@
             - "{{ pxe_tftp_dir }}"
             - "{{ pxe_http_dir }}"
 
+        - name: Clean up old netboot files to force update
+          ansible.builtin.file:
+            path: "{{ item }}"
+            state: absent
+          loop:
+            - "{{ pxe_server_dir }}/netboot.tar.gz"
+            - "{{ pxe_tftp_dir }}/pxelinux.0"
+            - "{{ pxe_tftp_dir }}/debian-installer"
+          when: force_netboot_download | default(false) | bool
+
         - name: Download Debian netboot archive
           ansible.builtin.get_url:
             url: "{{ debian_netboot_url }}"

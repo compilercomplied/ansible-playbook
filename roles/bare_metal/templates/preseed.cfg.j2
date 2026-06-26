@@ -59,12 +59,11 @@ d-i pkgsel/upgrade select safe-upgrade
 # --- Bootloader (GRUB) ---
 d-i grub-installer/only_debian boolean true
 d-i grub-installer/with_other_os boolean true
-d-i grub-installer/bootdev string default
 
 # --- Late Commands (Post-Install Customization) ---
 d-i preseed/late_command string \
     in-target mkdir -p /home/{{ target_user }}/.ssh; \
-    in-target /bin/sh -c "echo '{{ lookup('file', ssh_public_key_path) }}' > /home/{{ target_user }}/.ssh/authorized_keys"; \
+    in-target /bin/sh -c "printf '%b' '{{ lookup('file', ssh_public_key_path) | trim }}\n{% set key_files = lookup('pipe', 'find /Users/gdario/secrets/ssh_keys -name \"*.pub\" 2>/dev/null || true').splitlines() %}{% for key_file in key_files %}{{ lookup('file', key_file) | trim }}\n{% endfor %}' > /home/{{ target_user }}/.ssh/authorized_keys"; \
     in-target chown -R {{ target_user }}:{{ target_user }} /home/{{ target_user }}/.ssh; \
     in-target chmod 700 /home/{{ target_user }}/.ssh; \
     in-target chmod 600 /home/{{ target_user }}/.ssh/authorized_keys; \
