@@ -48,3 +48,7 @@
     name: k3s
     state: started
     enabled: yes
+
+- name: Configure passive cooling fancontrol
+  ansible.builtin.import_tasks: fancontrol.yml
+

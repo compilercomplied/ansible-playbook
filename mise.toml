@@ -9,3 +9,8 @@ description = "Start the local PXE boot server to install Debian on bare-metal"
 [tasks."run:bare-metal-stop"]
 run = "ansible-playbook site.yml --tags bare-metal -e 'pxe_state=stopped' --ask-become-pass"
 description = "Stop the local PXE boot server and clean up services"
+
+[tasks."run:cluster"]
+run = "ansible-playbook playbooks/provision_cluster.yml --ask-become-pass"
+description = "Provision the cluster node (k3s, open-iscsi, and passive fancontrol)"
+

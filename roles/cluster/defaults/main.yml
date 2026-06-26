@@ -1,0 +1,21 @@
+---
+# defaults file for cluster role
+
+# Fancontrol passive cooling configuration
+fancontrol_interval: 10
+
+# CPU Fan (pwm1) configuration
+fancontrol_mintemp_cpu: 45
+fancontrol_maxtemp_cpu: 65
+fancontrol_minstart_cpu: 100
+fancontrol_minstop_cpu: 40
+fancontrol_minpwm_cpu: 40
+fancontrol_maxpwm_cpu: 255
+
+# Chassis Fan (pwm2) configuration
+fancontrol_mintemp_chassis: 45
+fancontrol_maxtemp_chassis: 65
+fancontrol_minstart_chassis: 100
+fancontrol_minstop_chassis: 0
+fancontrol_minpwm_chassis: 0
+fancontrol_maxpwm_chassis: 255
