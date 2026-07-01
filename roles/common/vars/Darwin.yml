@@ -8,3 +8,5 @@ core_packages:
   - gnupg
   - syncthing
   - zellij
+  - chezmoi
+

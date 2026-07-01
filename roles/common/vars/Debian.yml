@@ -9,6 +9,8 @@ common_packages:
   - vim
   - ssh
   - gnupg
+  - chezmoi
+
 
 workstation_packages:
   - syncthing
