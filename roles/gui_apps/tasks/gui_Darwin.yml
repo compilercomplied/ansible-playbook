@@ -5,6 +5,15 @@
     state: present
   when: gui_taps is defined
 
+- name: Trust Homebrew Taps (macOS)
+  ansible.builtin.command:
+    cmd: "brew trust {{ item }}"
+  loop: "{{ gui_taps }}"
+  when: gui_taps is defined
+  changed_when: false
+  environment:
+    PATH: "/opt/homebrew/bin:/usr/local/bin:{{ ansible_facts['env'].PATH }}"
+
 - name: Install Homebrew Formulas (macOS)
   community.general.homebrew:
     name: "{{ gui_formulas }}"

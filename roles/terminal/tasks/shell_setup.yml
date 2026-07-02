@@ -147,9 +147,9 @@
     executable: /bin/bash
   when: secrets_env_check.stat.exists
 
-- name: Run Nushell Bootstrap
+- name: Initialize chezmoi
   become: "{{ user_become }}"
   become_user: "{{ target_user }}"
   ansible.builtin.command:
-    cmd: "{{ shell_path }} bootstrap.nu"
-    chdir: "{{ nushell_config_dir }}"
+    cmd: "chezmoi init --apply git@github.com:compilercomplied/chezmoi.git"
+    creates: "{{ home_dir }}/.local/share/chezmoi"
