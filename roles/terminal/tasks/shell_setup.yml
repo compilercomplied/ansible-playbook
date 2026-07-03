@@ -111,6 +111,12 @@
   args:
     creates: "{{ shell_path }}"
 
+- name: Install nufmt using `cargo install --git`
+  become: "{{ user_become }}"
+  become_user: "{{ target_user }}"
+  ansible.builtin.command:
+    cmd: "{{ home_dir }}/.cargo/bin/cargo install --git https://github.com/nushell/nufmt"
+
 - name: Ensure Nushell env directory exists
   ansible.builtin.file:
     path: "{{ nushell_config_dir }}/env"
