@@ -14,3 +14,7 @@ description = "Stop the local PXE boot server and clean up services"
 run = "ansible-playbook playbooks/provision_cluster.yml --ask-become-pass"
 description = "Provision the cluster node (k3s, open-iscsi, and passive fancontrol)"
 
+[tasks."run:bare-metal-hosts"]
+run = "ansible-playbook playbooks/provision_bare_metal.yml --limit bare_metal --ask-become-pass"
+description = "Apply host configuration (sysctl, etc.) to bare metal Debian nodes"
+

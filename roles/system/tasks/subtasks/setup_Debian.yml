@@ -5,3 +5,22 @@
     name: "{{ core_packages + (user_packages | default([])) }}"
     state: present
     update_cache: yes
+
+# Kata Containers, monitoring agents (Alloy, Loki), and K3s itself all create many
+# inotify watches. The default kernel limits (8192 watches, 128 instances) are too
+# low and cause "too many open files" errors across multiple services.
+- name: Increase inotify max_user_watches for k8s/containers
+  become: true
+  ansible.builtin.sysctl:
+    name: fs.inotify.max_user_watches
+    value: "524288"
+    state: present
+    reload: yes
+
+- name: Increase inotify max_user_instances for k8s/containers
+  become: true
+  ansible.builtin.sysctl:
+    name: fs.inotify.max_user_instances
+    value: "8192"
+    state: present
+    reload: yes

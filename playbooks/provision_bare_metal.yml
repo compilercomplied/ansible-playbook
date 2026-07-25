@@ -5,3 +5,23 @@
   gather_facts: true
   roles:
     - bare_metal
+
+- name: Configure Bare Metal Hosts (Debian)
+  hosts: bare_metal
+  gather_facts: true
+  tasks:
+    - name: Increase inotify max_user_watches for k8s/containers
+      become: true
+      ansible.posix.sysctl:
+        name: fs.inotify.max_user_watches
+        value: "524288"
+        state: present
+        reload: yes
+
+    - name: Increase inotify max_user_instances for k8s/containers
+      become: true
+      ansible.posix.sysctl:
+        name: fs.inotify.max_user_instances
+        value: "8192"
+        state: present
+        reload: yes
