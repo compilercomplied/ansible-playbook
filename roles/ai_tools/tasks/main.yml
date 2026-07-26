@@ -50,3 +50,19 @@
       npm install -g @github/copilot
     executable: /bin/bash
   when: copilot_check.rc != 0
+
+- name: Check if opencode is installed
+  ansible.builtin.stat:
+    path: "{{ home_dir }}/.opencode/bin/opencode"
+  register: opencode_check
+
+- name: Install opencode
+  become: "{{ user_become }}"
+  become_user: "{{ target_user }}"
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      export PATH="$HOME/.local/bin:$PATH"
+      curl -fsSL https://opencode.ai/install | bash
+    executable: /bin/bash
+  when: not opencode_check.stat.exists
