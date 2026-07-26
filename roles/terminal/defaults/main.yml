@@ -7,6 +7,7 @@ workstation_paths:
   - "{{ home_dir }}/.orbstack/bin"
   - "{{ home_dir }}/.local/bin"
   - "{{ home_dir }}/.local/share/mise/shims"
+  - "{{ home_dir }}/.opencode/bin"
 
 # Default directories
 bin_dir: "/usr/local/bin"
