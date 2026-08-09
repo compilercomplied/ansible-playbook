@@ -24,3 +24,16 @@
     value: "8192"
     state: present
     reload: yes
+
+# Note: This is explicitly for the bare metal cluster (which runs K3s).
+# K3s requires a durable IPv6 address on the primary interface to support dual-stack networking,
+# which is needed for Node.js services (like Outline Wiki) that default to IPv6 sockets.
+- name: Ensure static IPv6 address is configured for bare metal cluster dual-stack
+  become: true
+  ansible.builtin.blockinfile:
+    path: /etc/network/interfaces
+    block: |
+      iface enp0s31f6 inet6 static
+          address fd00::200/64
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - DUAL STACK IPV6"
+
