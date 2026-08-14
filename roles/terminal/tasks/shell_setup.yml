@@ -115,7 +115,9 @@
   become: "{{ user_become }}"
   become_user: "{{ target_user }}"
   ansible.builtin.command:
-    cmd: "{{ home_dir }}/.cargo/bin/cargo install --git https://github.com/nushell/nufmt"
+    cmd: "{{ home_dir }}/.cargo/bin/cargo install --git https://github.com/nushell/nufmt --locked"
+  args:
+    creates: "{{ home_dir }}/.cargo/bin/nufmt"
 
 - name: Ensure Nushell env directory exists
   ansible.builtin.file:

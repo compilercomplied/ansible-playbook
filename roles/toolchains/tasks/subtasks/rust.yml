@@ -17,6 +17,15 @@
   ansible.builtin.shell: /tmp/sh.rustup.rs -y
   when: not rustup_check.stat.exists
 
+- name: Update Rust toolchain (User space)
+  become: "{{ user_become }}"
+  become_user: "{{ target_user }}"
+  ansible.builtin.command:
+    cmd: "{{ home_dir }}/.cargo/bin/rustup update stable"
+  register: rustup_update
+  changed_when: "'updated' in rustup_update.stdout"
+  when: rustup_check.stat.exists
+
 - name: Source Cargo in .bashrc
   ansible.builtin.lineinfile:
     path: "{{ home_dir }}/.bashrc"
