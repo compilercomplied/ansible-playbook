@@ -1,12 +1,13 @@
 ---
 core_packages:
-  - ripgrep
+  - chezmoi
+  - curl
   - git
   - git-lfs
-  - curl
-  - unzip
   - gnupg
+  - ripgrep
   - syncthing
+  - unzip
+  - uv
   - zellij
-  - chezmoi
 
