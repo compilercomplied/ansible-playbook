@@ -62,6 +62,12 @@
   register: force_gen
   changed_when: true
 
+- name: Clear fancontrol start limit after a configuration update
+  ansible.builtin.command:
+    cmd: systemctl reset-failed fancontrol
+  when: helper_script.changed or helper_service.changed or config_run.changed or force_gen.changed
+  changed_when: false
+
 - name: Ensure fancontrol service is enabled and started/restarted
   ansible.builtin.systemd:
     name: fancontrol
