@@ -1,3 +1,5 @@
 ---
 gui_packages: []
-personal_gui_packages: []
+personal_gui_packages:
+  - godot3
+  - blender

@@ -13,7 +13,7 @@
 
 - name: Install Homebrew Casks (macOS)
   community.general.homebrew_cask:
-    name: "{{ gui_casks + ai_casks }}"
+    name: "{{ gui_casks + ai_casks + (personal_casks if install_personal_apps | bool else []) }}"
     state: present
   when: gui_casks is defined
 

@@ -13,5 +13,9 @@ gui_casks:
   - obsidian
   - wezterm
 
+personal_casks:
+  - godot
+  - blender
+
 ai_casks:
   - lm-studio
