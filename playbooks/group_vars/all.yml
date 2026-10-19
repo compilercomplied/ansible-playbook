@@ -2,7 +2,6 @@
 workstation_profile: personal
 is_gui_enabled: true
 install_docker: true
-install_ai_tools: true
 configure_secrets: true
 configure_system: true
 install_personal_apps: "{{ workstation_profile == 'personal' }}"

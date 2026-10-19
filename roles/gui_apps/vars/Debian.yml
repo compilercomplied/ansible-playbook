@@ -1,4 +1,3 @@
 ---
 gui_packages: []
-personal_gui_packages:
-  - telegram-desktop
+personal_gui_packages: []

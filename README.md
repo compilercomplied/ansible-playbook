@@ -53,11 +53,12 @@ per OS in `playbooks/vars/`. Override feature switches with `-e`:
 
 ```sh
 ansible-playbook site.yml -e workstation_profile=work \
-  -e install_docker=false -e install_ai_tools=false --ask-become-pass
+  -e install_docker=false --ask-become-pass
 ```
 
 Other switches are `configure_secrets`, `configure_system`, `is_gui_enabled`,
 `install_personal_apps`, and `configure_touchid_sudo` (off by default).
+AI tools are always installed; AI GUI apps are installed when GUI apps are enabled.
 `node_version` defaults to `lts`. The main playbook rejects root execution and
 profiles other than `work` and `personal`. It does not change the login shell.
 

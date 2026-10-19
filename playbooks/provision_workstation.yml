@@ -13,8 +13,7 @@
   roles:
     - common
     - toolchains
-    - role: ai_tools
-      when: install_ai_tools | bool
+    - ai_tools
     - terminal
     - editor
     - role: docker
