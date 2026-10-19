@@ -1,12 +1,12 @@
 ---
-- name: Install Common Core Packages (macOS)
+- name: Install Homebrew workstation packages
   community.general.homebrew:
-    name: "{{ core_packages }}"
+    name: "{{ workstation_packages + (personal_packages if install_personal_apps | bool else []) }}"
     state: present
-    update_homebrew: yes
+    update_homebrew: true
 
-- name: Start Syncthing service (macOS)
+- name: Enable Syncthing service
   community.general.homebrew_services:
     name: syncthing
     state: present
-
+  when: install_personal_apps | bool and not ansible_check_mode

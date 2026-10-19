@@ -1,0 +1,18 @@
+---
+workstation_packages:
+  - build-essential
+  - ca-certificates
+  - curl
+  - git
+  - git-lfs
+  - gnupg
+  - neovim
+  - openssh-client
+  - ripgrep
+  - unzip
+  - vim
+  - wl-clipboard
+  - zellij
+  - libatomic1
+personal_packages:
+  - syncthing

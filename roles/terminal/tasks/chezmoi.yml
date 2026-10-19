@@ -1,0 +1,11 @@
+---
+- name: Check chezmoi installation
+  ansible.builtin.stat:
+    path: "{{ bin_dir }}/chezmoi"
+  register: chezmoi_binary
+
+- name: Install chezmoi in user space on Debian
+  ansible.builtin.shell:
+    cmd: 'curl -fsLS https://get.chezmoi.io | sh -s -- -b "{{ bin_dir }}"'
+    executable: /bin/bash
+  when: ansible_facts['os_family'] == 'Debian' and not chezmoi_binary.stat.exists

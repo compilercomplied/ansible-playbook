@@ -1,13 +1,14 @@
 ---
-core_packages:
+workstation_packages:
   - chezmoi
   - curl
   - git
   - git-lfs
   - gnupg
+  - neovim
   - ripgrep
-  - syncthing
   - unzip
   - uv
   - zellij
-
+personal_packages:
+  - syncthing

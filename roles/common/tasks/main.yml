@@ -1,45 +1,32 @@
 ---
-- name: Load OS-specific variables
-  ansible.builtin.include_vars: "{{ ansible_facts['os_family'] }}.yml"
-
-- name: Configure Linux-Specific Apt Sources
-  ansible.builtin.include_tasks: "setup_{{ ansible_facts['os_family'] }}.yml"
-  when: ansible_facts['os_family'] == 'Debian'
-
-- name: Install Common Core Packages
+- name: Install platform packages
   ansible.builtin.include_tasks: "packages_{{ ansible_facts['os_family'] }}.yml"
 
-- name: Check if Git LFS is initialized
-  become: "{{ user_become }}"
-  become_user: "{{ target_user }}"
+- name: Ensure user configuration and binary directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ home_dir }}/.config"
+    - "{{ bin_dir }}"
+
+- name: Check Git LFS initialization
   ansible.builtin.command: git config --global filter.lfs.smudge
   register: git_lfs_check
   changed_when: false
   failed_when: false
-  check_mode: no
+  check_mode: false
 
 - name: Initialize Git LFS
-  become: "{{ user_become }}"
-  become_user: "{{ target_user }}"
   ansible.builtin.command: git lfs install
-  when: git_lfs_check.rc != 0
+  when: git_lfs_check.rc != 0 and not ansible_check_mode
 
-- name: Ensure .config directory exists
-  become: "{{ ansible_facts['os_family'] == 'Debian' }}"
-  ansible.builtin.file:
-    path: "{{ home_dir }}/.config"
-    state: directory
-    owner: "{{ target_user if ansible_facts['os_family'] == 'Debian' else omit }}"
-    group: "{{ target_user if ansible_facts['os_family'] == 'Debian' else omit }}"
-    mode: '0755'
-
-- name: Clone Secrets Repo
-  become: "{{ user_become }}"
-  become_user: "{{ target_user }}"
+- name: Clone personal secrets
   ansible.builtin.git:
-    repo: 'git@github.com:compilercomplied/secrets.git'
+    repo: git@github.com:compilercomplied/secrets.git
     dest: "{{ home_dir }}/secrets"
     version: master
-    accept_hostkey: yes
-    force: yes
-  check_mode: no
+    accept_hostkey: true
+    force: false
+  when: configure_secrets | bool and not ansible_check_mode

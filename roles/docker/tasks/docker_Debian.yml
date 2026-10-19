@@ -7,6 +7,13 @@
       - gnupg
     state: present
 
+- name: Ensure Docker keyring directory exists
+  become: true
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
 - name: Add Docker GPG key
   become: yes
   ansible.builtin.get_url:
@@ -23,7 +30,7 @@
   ansible.builtin.copy:
     dest: /etc/apt/sources.list.d/docker.list
     content: |
-      deb [arch={{ docker_arch }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian bookworm stable
+      deb [arch={{ docker_arch }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian {{ ansible_facts['distribution_release'] }} stable
     force: yes
 
 - name: Install Docker Components

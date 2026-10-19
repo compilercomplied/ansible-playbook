@@ -1,4 +1,4 @@
 ---
-gui_packages:
-  - spotify-client
+gui_packages: []
+personal_gui_packages:
   - telegram-desktop

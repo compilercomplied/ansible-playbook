@@ -1,0 +1,30 @@
+---
+- name: Bootstrap the personal Debian login account
+  hosts: workstations
+  become: false
+  vars:
+    bootstrap_user: gdario
+  pre_tasks:
+    - name: Require a root session on Debian
+      ansible.builtin.assert:
+        that:
+          - ansible_facts['distribution'] == 'Debian'
+          - ansible_facts['user_uid'] | int == 0
+          - bootstrap_user != 'root'
+        fail_msg: Run this optional bootstrap as root on your personal Debian laptop.
+  tasks:
+    - name: Install sudo
+      ansible.builtin.apt:
+        name: sudo
+        state: present
+        update_cache: true
+    - name: Create the personal administrator account
+      ansible.builtin.user:
+        name: "{{ bootstrap_user }}"
+        shell: /bin/bash
+        groups: sudo
+        append: true
+        create_home: true
+    - name: Explain the login handoff
+      ansible.builtin.debug:
+        msg: "Set a password with passwd {{ bootstrap_user }} if needed, log in as {{ bootstrap_user }}, then run mise run provision-personal."

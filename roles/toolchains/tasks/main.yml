@@ -1,7 +1,12 @@
 ---
-- name: Load OS-specific toolchain variables
-  ansible.builtin.include_vars: "{{ playbook_dir }}/../roles/system/vars/{{ ansible_facts['os_family'] }}.yml"
-
-- name: Include all toolchain definitions
-  ansible.builtin.include_tasks: "{{ item }}"
-  loop: "{{ query('fileglob', role_path + '/tasks/subtasks/*.yml') | sort }}"
+- name: Configure toolchains
+  when: not ansible_check_mode
+  block:
+    - name: Install mise
+      ansible.builtin.import_tasks: subtasks/mise.yml
+    - name: Configure Node through mise
+      ansible.builtin.import_tasks: subtasks/nodejs.yml
+    - name: Configure Rust
+      ansible.builtin.import_tasks: subtasks/rust.yml
+    - name: Configure Pulumi
+      ansible.builtin.import_tasks: subtasks/pulumi.yml

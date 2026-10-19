@@ -1,3 +1,6 @@
 ---
-- name: Configure Shell (Nushell, Starship, Secrets)
-  ansible.builtin.include_tasks: shell_setup.yml
+- name: Configure terminal
+  when: not ansible_check_mode
+  block:
+    - name: Configure Shell (Nushell, Starship, Secrets)
+      ansible.builtin.include_tasks: shell_setup.yml

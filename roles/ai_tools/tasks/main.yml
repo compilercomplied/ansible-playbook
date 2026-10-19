@@ -1,48 +1,45 @@
 ---
-- name: Check if Claude Code is installed
-  ansible.builtin.stat:
-    path: "{{ home_dir }}/.local/bin/claude"
-  register: claude_check
+- name: Configure ai tools
+  when: not ansible_check_mode
+  block:
+    - name: Check if Claude Code is installed
+      ansible.builtin.stat:
+        path: "{{ home_dir }}/.local/bin/claude"
+      register: claude_check
 
-- name: Install Global AI Tools (Claude Code)
-  become: "{{ user_become }}"
-  become_user: "{{ target_user }}"
-  ansible.builtin.shell:
-    cmd: |
-      set -o pipefail
-      export PATH="$HOME/.local/bin:$PATH"
-      curl -fsSL https://claude.ai/install.sh | bash
-    executable: /bin/bash
-  when: not claude_check.stat.exists
+    - name: Install Global AI Tools (Claude Code)
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          export PATH="$HOME/.local/bin:$PATH"
+          curl -fsSL https://claude.ai/install.sh | bash
+        executable: /bin/bash
+      when: not claude_check.stat.exists
 
-- name: Check if codex is installed
-  ansible.builtin.stat:
-    path: "{{ home_dir }}/.local/bin/codex"
-  register: codex_check
+    - name: Check if codex is installed
+      ansible.builtin.stat:
+        path: "{{ home_dir }}/.local/bin/codex"
+      register: codex_check
 
-- name: Install codex
-  become: "{{ user_become }}"
-  become_user: "{{ target_user }}"
-  ansible.builtin.shell:
-    cmd: |
-      set -o pipefail
-      export PATH="$HOME/.local/bin:$PATH"
-      curl -fsSL https://chatgpt.com/codex/install.sh | sh
-    executable: /bin/bash
-  when: not codex_check.stat.exists
+    - name: Install codex
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          export PATH="$HOME/.local/bin:$PATH"
+          curl -fsSL https://chatgpt.com/codex/install.sh | sh
+        executable: /bin/bash
+      when: not codex_check.stat.exists
 
-- name: Check if opencode is installed
-  ansible.builtin.stat:
-    path: "{{ home_dir }}/.opencode/bin/opencode"
-  register: opencode_check
+    - name: Check if opencode is installed
+      ansible.builtin.stat:
+        path: "{{ home_dir }}/.opencode/bin/opencode"
+      register: opencode_check
 
-- name: Install opencode
-  become: "{{ user_become }}"
-  become_user: "{{ target_user }}"
-  ansible.builtin.shell:
-    cmd: |
-      set -o pipefail
-      export PATH="$HOME/.local/bin:$PATH"
-      curl -fsSL https://opencode.ai/install | bash
-    executable: /bin/bash
-  when: not opencode_check.stat.exists
+    - name: Install opencode
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          export PATH="$HOME/.local/bin:$PATH"
+          curl -fsSL https://opencode.ai/install | bash
+        executable: /bin/bash
+      when: not opencode_check.stat.exists

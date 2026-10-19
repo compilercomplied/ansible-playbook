@@ -1,0 +1,11 @@
+---
+- name: restart Finder
+  ansible.builtin.command: killall Finder
+  changed_when: false
+  ignore_errors: true
+
+- name: restart SystemUIServer
+  ansible.builtin.command: killall SystemUIServer
+  changed_when: false
+  ignore_errors: true
+

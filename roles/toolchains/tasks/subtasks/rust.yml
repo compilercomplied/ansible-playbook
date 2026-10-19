@@ -12,14 +12,10 @@
   when: not rustup_check.stat.exists
 
 - name: Install Rust (User space)
-  become: "{{ user_become }}"
-  become_user: "{{ target_user }}"
   ansible.builtin.shell: /tmp/sh.rustup.rs -y
   when: not rustup_check.stat.exists
 
 - name: Update Rust toolchain (User space)
-  become: "{{ user_become }}"
-  become_user: "{{ target_user }}"
   ansible.builtin.command:
     cmd: "{{ home_dir }}/.cargo/bin/rustup update stable"
   register: rustup_update

@@ -5,15 +5,8 @@ workstation_paths:
   - "/usr/local/bin"
   - "/usr/local/sbin"
   - "{{ home_dir }}/.orbstack/bin"
+  - "{{ home_dir }}/.cargo/bin"
+  - "{{ home_dir }}/.pulumi/bin"
   - "{{ home_dir }}/.local/bin"
   - "{{ home_dir }}/.local/share/mise/shims"
   - "{{ home_dir }}/.opencode/bin"
-
-# Default directories
-bin_dir: "/usr/local/bin"
-home_dir: "/Users/{{ target_user }}"
-nushell_config_dir: "{{ home_dir }}/Library/Application Support/nushell"
-shell_path: "{{ home_dir }}/.cargo/bin/nu"
-
-# Binary paths for installers
-starship_bin_path: "{{ bin_dir }}/starship"

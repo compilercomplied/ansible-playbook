@@ -5,8 +5,6 @@
   register: mise_check
 
 - name: Install mise
-  become: "{{ user_become }}"
-  become_user: "{{ target_user }}"
   ansible.builtin.shell: |
     curl https://mise.run | sh
   when: not mise_check.stat.exists
@@ -14,13 +12,20 @@
 - name: Add mise to user .bashrc
   ansible.builtin.lineinfile:
     path: "{{ home_dir }}/.bashrc"
-    line: 'eval "$(mise activate bash)"'
+    line: 'eval "$(~/.local/bin/mise activate bash)"'
     create: yes
     owner: "{{ target_user }}"
 
 - name: Add mise to user .profile
   ansible.builtin.lineinfile:
     path: "{{ home_dir }}/.profile"
-    line: 'eval "$(mise activate bash)"'
+    line: 'eval "$(~/.local/bin/mise activate bash)"'
     create: yes
     owner: "{{ target_user }}"
+
+- name: Activate mise in Zsh
+  ansible.builtin.lineinfile:
+    path: "{{ home_dir }}/.zshrc"
+    line: 'eval "$(~/.local/bin/mise activate zsh)"'
+    create: true
+  when: ansible_facts['os_family'] == 'Darwin'

@@ -1,20 +1,19 @@
-[tasks."run:workstation"]
-run = "ansible-playbook site.yml --tags workstation"
-description = "Provision local workstation with Ansible"
+[tasks.project-setup]
+description = "Install Ansible collection dependencies (requires Ansible)"
+run = "ansible-galaxy collection install -r requirements.yml"
 
-[tasks."run:bare-metal-start"]
-run = "ansible-playbook site.yml --tags bare-metal --ask-become-pass"
-description = "Start the local PXE boot server to install Debian on bare-metal"
+[tasks.provision-work]
+description = "Configure the logged-in user's work laptop"
+run = "ansible-playbook site.yml -e workstation_profile=work --ask-become-pass"
 
-[tasks."run:bare-metal-stop"]
-run = "ansible-playbook site.yml --tags bare-metal -e 'pxe_state=stopped' --ask-become-pass"
-description = "Stop the local PXE boot server and clean up services"
+[tasks.provision-personal]
+description = "Configure the logged-in user's personal laptop"
+run = "ansible-playbook site.yml -e workstation_profile=personal --ask-become-pass"
 
-[tasks."run:cluster"]
-run = "ansible-playbook playbooks/provision_cluster.yml --ask-become-pass"
-description = "Provision the cluster node (k3s, open-iscsi, and passive fancontrol)"
+[tasks.bootstrap]
+description = "Create the personal Debian login account (run as root)"
+run = "ansible-playbook playbooks/bootstrap.yml"
 
-[tasks."run:bare-metal-hosts"]
-run = "ansible-playbook playbooks/provision_bare_metal.yml --limit bare_metal --ask-become-pass"
-description = "Apply host configuration (sysctl, etc.) to bare metal Debian nodes"
-
+[tasks.check]
+description = "Validate playbooks without provisioning"
+run = ["ansible-playbook site.yml --syntax-check", "ansible-playbook playbooks/bootstrap.yml --syntax-check", "ansible-playbook tests/profiles.yml"]

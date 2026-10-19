@@ -1,16 +1,17 @@
 ---
-- name: Install Common Core Packages (Debian)
+- name: Install Debian workstation packages
   become: true
   ansible.builtin.apt:
-    name: "{{ common_packages + (workstation_packages if is_workstation | default(false) | bool else []) }}"
+    name: "{{ workstation_packages + (personal_packages if install_personal_apps | bool else []) }}"
     state: present
+    update_cache: true
 
-- name: Start Syncthing service (Debian)
+- name: Enable user Syncthing service
   ansible.builtin.systemd:
     name: syncthing
     scope: user
-    enabled: yes
+    enabled: true
     state: started
   environment:
-    XDG_RUNTIME_DIR: "/run/user/{{ ansible_effective_user_id }}"
-  when: is_workstation | default(false) | bool
+    XDG_RUNTIME_DIR: "/run/user/{{ ansible_facts['user_uid'] }}"
+  when: install_personal_apps | bool and not ansible_check_mode

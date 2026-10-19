@@ -1,14 +1,25 @@
 ---
-- name: Provision Workstations
+- name: Provision the current workstation user
   hosts: workstations
   become: false
   tags: workstation
+  pre_tasks:
+    - name: Validate workstation execution context
+      ansible.builtin.import_tasks: tasks/validate_workstation.yml
+      tags: always
+    - name: Load platform package lists
+      ansible.builtin.include_vars: "{{ playbook_dir }}/vars/{{ ansible_facts['os_family'] }}.yml"
+      tags: always
   roles:
     - common
     - toolchains
-    - ai_tools
+    - role: ai_tools
+      when: install_ai_tools | bool
     - terminal
     - editor
-    - docker
-    - system
-    - gui_apps
+    - role: docker
+      when: install_docker | bool
+    - role: system
+      when: configure_system | bool
+    - role: gui_apps
+      when: is_gui_enabled | bool

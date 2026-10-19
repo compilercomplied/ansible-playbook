@@ -1,3 +1,0 @@
----
-sudo_group: sudo
-user_default_shell: /bin/bash

@@ -1,23 +1,11 @@
 ---
-- name: Install Homebrew Core Packages (macOS)
-  community.general.homebrew:
-    name: "{{ core_packages + (user_packages | default([])) }}"
-    state: present
-    update_homebrew: yes
-  check_mode: no
-
-- name: Enable Touch ID for sudo (macOS Sonoma+)
-  become: "{{ (configure_touchid_sudo | default(true) | bool) | ternary('yes', 'no') }}"
+- name: Enable Touch ID for sudo
+  become: true
   ansible.builtin.blockinfile:
     path: /etc/pam.d/sudo_local
-    create: yes
+    create: true
     owner: root
     group: wheel
     mode: '0644'
     block: |
-      # Managed by Ansible - Enable Touch ID for sudo
-      auth       optional       /opt/homebrew/lib/pam/pam_reattach.so
-      auth       sufficient     pam_tid.so
-  when: 
-    - ansible_facts['os_family'] == 'Darwin'
-    - configure_touchid_sudo | default(true) | bool
+      auth sufficient pam_tid.so

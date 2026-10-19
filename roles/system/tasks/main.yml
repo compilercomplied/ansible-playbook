@@ -1,17 +1,8 @@
 ---
-- name: Load OS-specific variables
-  ansible.builtin.include_vars: "{{ ansible_facts['os_family'] }}.yml"
+- name: Configure macOS preferences
+  ansible.builtin.import_tasks: subtasks/configure_Darwin.yml
+  when: ansible_facts['os_family'] == 'Darwin'
 
-- name: Run Platform Initialization
-  ansible.builtin.include_tasks: "subtasks/setup_{{ ansible_facts['os_family'] }}.yml"
-
-- name: Check if Platform Configuration exists
-  ansible.builtin.stat:
-    path: "{{ role_path }}/tasks/subtasks/configure_{{ ansible_facts['os_family'] }}.yml"
-  register: platform_config_file
-
-- name: Run Platform Configuration
-  ansible.builtin.include_tasks: "subtasks/configure_{{ ansible_facts['os_family'] }}.yml"
-  when: platform_config_file.stat.exists
-
-
+- name: Configure optional Touch ID for sudo
+  ansible.builtin.import_tasks: subtasks/setup_Darwin.yml
+  when: ansible_facts['os_family'] == 'Darwin' and configure_touchid_sudo | bool

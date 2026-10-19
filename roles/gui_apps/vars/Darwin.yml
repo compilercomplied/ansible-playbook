@@ -1,22 +1,21 @@
 ---
 gui_taps:
-  - nikitabobko/tap # Dependency for AeroSpace
-  - felixkratz/formulae # Dependency for SketchyBar
-
+  - nikitabobko/tap
+  - felixkratz/formulae
 gui_formulas:
   - sketchybar
-
 gui_casks:
   - aerospace
   - alt-tab
   - betterdisplay
   - localsend
   - font-jetbrains-mono-nerd-font
-  - lm-studio
   - obsidian
-  - spotify
   - wezterm
+personal_casks:
+  - spotify
+  - telegram
+  - whatsapp
 
-mas_apps:
-  - { id: 747648890, name: "Telegram" }
-  - { id: 310633997, name: "WhatsApp" }
+ai_casks:
+  - lm-studio

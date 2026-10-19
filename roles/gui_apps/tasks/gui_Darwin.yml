@@ -5,15 +5,6 @@
     state: present
   when: gui_taps is defined
 
-- name: Trust Homebrew Taps (macOS)
-  ansible.builtin.command:
-    cmd: "brew trust {{ item }}"
-  loop: "{{ gui_taps }}"
-  when: gui_taps is defined
-  changed_when: false
-  environment:
-    PATH: "/opt/homebrew/bin:/usr/local/bin:{{ ansible_facts['env'].PATH }}"
-
 - name: Install Homebrew Formulas (macOS)
   community.general.homebrew:
     name: "{{ gui_formulas }}"
@@ -22,25 +13,18 @@
 
 - name: Install Homebrew Casks (macOS)
   community.general.homebrew_cask:
-    name: "{{ gui_casks }}"
+    name: "{{ gui_casks + (personal_casks if install_personal_apps | bool else []) + (ai_casks if install_ai_tools | bool else []) }}"
     state: present
   when: gui_casks is defined
 
-# TODO: provisioned mac can't install these
-# - name: Install Mac App Store Apps (macOS)
-#   community.general.mas:
-#     id: "{{ item.id | int }}"
-#     state: present
-#   loop: "{{ mas_apps }}"
-#   when: mas_apps is defined
-#   environment:
-#     PATH: "/opt/homebrew/bin:/usr/local/bin:{{ ansible_facts['env'].PATH }}"
-
 - name: Configure BetterDisplay (macOS)
+  when: configure_system | bool and not ansible_check_mode
   ansible.builtin.include_tasks: betterdisplay_Darwin.yml
 
 - name: Configure AeroSpace (macOS)
+  when: configure_system | bool and not ansible_check_mode
   ansible.builtin.include_tasks: aerospace_Darwin.yml
 
 - name: Configure SketchyBar (macOS)
+  when: configure_system | bool and not ansible_check_mode
   ansible.builtin.include_tasks: sketchybar_Darwin.yml

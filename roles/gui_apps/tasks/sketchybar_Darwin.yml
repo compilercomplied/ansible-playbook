@@ -1,15 +1,4 @@
 ---
-- name: Check if SketchyBar is in login items
-  ansible.builtin.shell: |
-    osascript -e 'tell application "System Events" to get the name of every login item'
-  register: login_items
-  changed_when: false
-
-- name: Add SketchyBar to login items
-  ansible.builtin.shell: |
-    osascript -e 'tell application "System Events" to make login item at end with properties {name:"SketchyBar", path:"/Applications/SketchyBar.app", hidden:false}'
-  when: "'SketchyBar' not in login_items.stdout"
-
 - name: Hide macOS Menu Bar
   community.general.osx_defaults:
     domain: NSGlobalDomain

@@ -1,45 +1,18 @@
 ---
-# ==============================================================================
-# CLI Overridable Configuration (Use -e "var_name=value")
-# ==============================================================================
+workstation_profile: personal
 is_gui_enabled: true
 install_docker: true
-target_user: gdario
-
-# Privilege escalation for user-space tasks (disabled on macOS/Darwin where we run as target user)
-user_become: "{{ ansible_os_family != 'Darwin' }}"
-
-# System Configuration Options
+install_ai_tools: true
+configure_secrets: true
+configure_system: true
+install_personal_apps: "{{ workstation_profile == 'personal' }}"
 configure_touchid_sudo: false
+node_version: lts
 
-# Dynamically resolve home directory if not overridden
-home_dir: "{{ '/Users/' ~ target_user if ansible_os_family == 'Darwin' else '/home/' ~ target_user }}"
-
-# ==============================================================================
-# System Defaults
-# ==============================================================================
-debian_mirror: "deb.debian.org"
-debian_release: "testing"
-
-# Package Categories
-core_packages:
-  - ripgrep
-  - git
-  - curl
-  - unzip
-
-programming_languages:
-  rust: stable
-
-user_packages:
-  - bat
-  - glow
-  - jq
-  - kubectl
-  - kubectx
-  - make
-  - sqlite3
-  - tree
-  - tree-sitter-cli
-  - zellij
-  - dnsmasq
+# Facts describe the account actually running local provisioning, including IT-managed logins.
+target_user: "{{ ansible_facts['user_id'] }}"
+home_dir: "{{ ansible_facts['user_dir'] }}"
+bin_dir: "{{ home_dir }}/.local/bin"
+shell_path: "{{ home_dir }}/.cargo/bin/nu"
+starship_bin_path: "{{ bin_dir }}/starship"
+nushell_config_dir: "{{ home_dir ~ '/Library/Application Support/nushell' if ansible_facts['os_family'] == 'Darwin' else home_dir ~ '/.config/nushell' }}"

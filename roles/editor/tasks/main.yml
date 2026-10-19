@@ -1,11 +1,9 @@
 ---
 - name: Clone Neovim Configuration
-  become: "{{ user_become }}"
-  become_user: "{{ target_user }}"
   ansible.builtin.git:
     repo: 'git@github.com:compilercomplied/nvim.git'
     dest: "{{ home_dir }}/.config/nvim"
     version: master
     accept_hostkey: yes
-    force: yes
-  check_mode: no
+    force: false
+  when: not ansible_check_mode
