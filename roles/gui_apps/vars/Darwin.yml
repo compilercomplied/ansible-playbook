@@ -6,7 +6,6 @@ gui_formulas:
   - sketchybar
 gui_casks:
   - aerospace
-  - alt-tab
   - betterdisplay
   - localsend
   - font-jetbrains-mono-nerd-font
